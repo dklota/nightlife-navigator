@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 // Mock data for UI demonstration
 const mockBars = [
   {
+    id: "woodstocks-pizza",
     name: "Woodstock's Pizza",
     image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=400&fit=crop",
     rating: 4.5,
@@ -18,6 +19,7 @@ const mockBars = [
     tags: ["Pizza", "Beer Garden"],
   },
   {
+    id: "the-graduate",
     name: "The Graduate",
     image: "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=400&h=400&fit=crop",
     rating: 4.2,
@@ -27,6 +29,7 @@ const mockBars = [
     tags: ["Sports Bar", "Late Night"],
   },
   {
+    id: "deveres-irish-pub",
     name: "de Vere's Irish Pub",
     image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=400&fit=crop",
     rating: 4.7,
@@ -36,6 +39,7 @@ const mockBars = [
     tags: ["Irish Pub", "Live Music"],
   },
   {
+    id: "sophias-thai-kitchen",
     name: "Sophia's Thai Kitchen",
     image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=400&fit=crop",
     rating: 4.4,
@@ -45,6 +49,7 @@ const mockBars = [
     tags: ["Thai", "Cocktails"],
   },
   {
+    id: "burgers-and-brew",
     name: "Burgers & Brew",
     image: "https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=400&h=400&fit=crop",
     rating: 4.3,
