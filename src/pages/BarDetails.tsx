@@ -7,7 +7,7 @@ import { LiveStatusCard } from "@/components/LiveStatusCard";
 import { LiveWall } from "@/components/LiveWall";
 import { useState } from "react";
 
-// Mock bar data with coordinates for GPS verification
+// Mock bar data - updated with real Davis bars
 const mockBarsData: Record<string, {
   id: string;
   name: string;
@@ -15,7 +15,6 @@ const mockBarsData: Record<string, {
   address: string;
   hours: string;
   tags: string[];
-  coordinates: { lat: number; lng: number };
   liveStatus: {
     waitTime: string;
     crowdLevel: string;
@@ -24,6 +23,116 @@ const mockBarsData: Record<string, {
   };
   comments: { id: string; text: string; time: string; vibe: string }[];
 }> = {
+  "g-street-wonders": {
+    id: "g-street-wonders",
+    name: "G Street WunderBar",
+    image: "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=800&h=400&fit=crop",
+    address: "228 G St, Davis, CA 95616",
+    hours: "5pm - 2am",
+    tags: ["Cocktails", "DJ", "Dancing"],
+    liveStatus: {
+      waitTime: "30m+",
+      crowdLevel: "Packed",
+      vibe: "🔥",
+      lastUpdated: "2 min ago",
+    },
+    comments: [
+      { id: "1", text: "DJ is going OFF right now! 🎧", time: "1m ago", vibe: "🔥" },
+      { id: "2", text: "Long line but worth the wait", time: "5m ago", vibe: "💃" },
+      { id: "3", text: "Best cocktails in Davis hands down", time: "12m ago", vibe: "🍻" },
+    ],
+  },
+  "froggys": {
+    id: "froggys",
+    name: "Froggy's Bar & Grill",
+    image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=400&fit=crop",
+    address: "815 2nd St, Davis, CA 95616",
+    hours: "11am - 2am",
+    tags: ["Sports Bar", "Late Night", "Food"],
+    liveStatus: {
+      waitTime: "10-30m",
+      crowdLevel: "High",
+      vibe: "💃",
+      lastUpdated: "8 min ago",
+    },
+    comments: [
+      { id: "1", text: "Game night vibes! Lakers up 🏀", time: "3m ago", vibe: "🔥" },
+      { id: "2", text: "Wings are 🔥 tonight", time: "15m ago", vibe: "🍻" },
+    ],
+  },
+  "sophias-bar": {
+    id: "sophias-bar",
+    name: "Sophia's Thai Bar",
+    image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=400&fit=crop",
+    address: "129 E St, Davis, CA 95616",
+    hours: "4pm - 12am",
+    tags: ["Cocktails", "Chill", "Thai Food"],
+    liveStatus: {
+      waitTime: "0-10m",
+      crowdLevel: "Vibe",
+      vibe: "🍻",
+      lastUpdated: "5 min ago",
+    },
+    comments: [
+      { id: "1", text: "Chill vibes, great for a date 💕", time: "10m ago", vibe: "🧊" },
+      { id: "2", text: "Thai iced tea cocktail is insane", time: "20m ago", vibe: "🍻" },
+    ],
+  },
+  "university-beer-garden": {
+    id: "university-beer-garden",
+    name: "University Beer Garden",
+    image: "https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=800&h=400&fit=crop",
+    address: "326 G St, Davis, CA 95616",
+    hours: "12pm - 2am",
+    tags: ["Beer Garden", "Live Music", "Outdoor"],
+    liveStatus: {
+      waitTime: "30m+",
+      crowdLevel: "Packed",
+      vibe: "🔥",
+      lastUpdated: "1 min ago",
+    },
+    comments: [
+      { id: "1", text: "LIVE BAND IS INSANE 🎸🔥", time: "30s ago", vibe: "🔥" },
+      { id: "2", text: "45 min wait but totally worth it", time: "8m ago", vibe: "💃" },
+      { id: "3", text: "Best outdoor spot in Davis", time: "22m ago", vibe: "🍻" },
+    ],
+  },
+  "deveres-irish-pub": {
+    id: "deveres-irish-pub",
+    name: "de Vere's Irish Pub",
+    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=400&fit=crop",
+    address: "217 E St, Davis, CA 95616",
+    hours: "11am - 1am",
+    tags: ["Irish Pub", "Whiskey", "Live Music"],
+    liveStatus: {
+      waitTime: "10-30m",
+      crowdLevel: "High",
+      vibe: "💃",
+      lastUpdated: "6 min ago",
+    },
+    comments: [
+      { id: "1", text: "Irish music night! 🍀", time: "4m ago", vibe: "💃" },
+      { id: "2", text: "Guinness is pouring perfect", time: "18m ago", vibe: "🍻" },
+    ],
+  },
+  "the-graduate": {
+    id: "the-graduate",
+    name: "The Graduate",
+    image: "https://images.unsplash.com/photo-1574391884720-bbc3740c59d1?w=800&h=400&fit=crop",
+    address: "805 Russell Blvd, Davis, CA 95616",
+    hours: "4pm - 2am",
+    tags: ["Pool", "Dive Bar", "Cheap Drinks"],
+    liveStatus: {
+      waitTime: "0-10m",
+      crowdLevel: "Vibe",
+      vibe: "🧊",
+      lastUpdated: "15 min ago",
+    },
+    comments: [
+      { id: "1", text: "Pool tables open, chill crowd", time: "12m ago", vibe: "🧊" },
+      { id: "2", text: "$3 wells all night 💰", time: "25m ago", vibe: "🍻" },
+    ],
+  },
   "woodstocks-pizza": {
     id: "woodstocks-pizza",
     name: "Woodstock's Pizza",
@@ -31,10 +140,9 @@ const mockBarsData: Record<string, {
     address: "219 G St, Davis, CA 95616",
     hours: "11am - 2am",
     tags: ["Pizza", "Beer Garden", "Late Night"],
-    coordinates: { lat: 38.5449, lng: -121.7405 },
     liveStatus: {
       waitTime: "10-30m",
-      crowdLevel: "Packed",
+      crowdLevel: "High",
       vibe: "🔥",
       lastUpdated: "5 min ago",
     },
@@ -42,45 +150,6 @@ const mockBarsData: Record<string, {
       { id: "1", text: "Line is moving fast tonight! 🍕", time: "2m ago", vibe: "🔥" },
       { id: "2", text: "Great energy, DJ is fire", time: "8m ago", vibe: "💃" },
       { id: "3", text: "Grab a spot on the patio if you can", time: "15m ago", vibe: "🔥" },
-    ],
-  },
-  "the-graduate": {
-    id: "the-graduate",
-    name: "The Graduate",
-    image: "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=800&h=400&fit=crop",
-    address: "805 Russell Blvd, Davis, CA 95616",
-    hours: "4pm - 2am",
-    tags: ["Sports Bar", "Late Night", "Pool"],
-    coordinates: { lat: 38.5435, lng: -121.7520 },
-    liveStatus: {
-      waitTime: "0-10m",
-      crowdLevel: "Vibe",
-      vibe: "💃",
-      lastUpdated: "12 min ago",
-    },
-    comments: [
-      { id: "1", text: "Pool tables are open!", time: "5m ago", vibe: "💃" },
-      { id: "2", text: "Game night energy ⚽", time: "20m ago", vibe: "🔥" },
-    ],
-  },
-  "deveres-irish-pub": {
-    id: "deveres-irish-pub",
-    name: "de Vere's Irish Pub",
-    image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=400&fit=crop",
-    address: "217 E St, Davis, CA 95616",
-    hours: "11am - 1am",
-    tags: ["Irish Pub", "Live Music", "Whiskey"],
-    coordinates: { lat: 38.5441, lng: -121.7399 },
-    liveStatus: {
-      waitTime: "30m+",
-      crowdLevel: "Packed",
-      vibe: "🔥",
-      lastUpdated: "3 min ago",
-    },
-    comments: [
-      { id: "1", text: "Live band is incredible 🎸", time: "1m ago", vibe: "🔥" },
-      { id: "2", text: "Worth the wait for sure", time: "10m ago", vibe: "🔥" },
-      { id: "3", text: "Packed but vibes are immaculate", time: "18m ago", vibe: "💃" },
     ],
   },
 };
@@ -185,18 +254,17 @@ export default function BarDetails() {
       {/* Floating Report Button */}
       <Button
         onClick={() => setIsReportOpen(true)}
-        className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 h-14 px-8 rounded-full bg-gradient-to-r from-neon-purple to-neon-cyan text-white font-bold shadow-lg shadow-neon-purple/30 hover:shadow-neon-purple/50 transition-all"
+        className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 h-14 px-8 rounded-full bg-gradient-to-r from-neon-purple to-neon-cyan text-white font-bold shadow-lg shadow-neon-purple/30 hover:shadow-neon-purple/50 transition-all animate-glow-pulse"
       >
         <Users className="h-5 w-5 mr-2" />
         Report the Move
       </Button>
 
-      {/* Report Drawer */}
+      {/* Report Drawer - No GPS required */}
       <ReportDrawer
         isOpen={isReportOpen}
         onClose={() => setIsReportOpen(false)}
         barName={bar.name}
-        barCoordinates={bar.coordinates}
       />
 
       <BottomNav />
