@@ -5,10 +5,9 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerDescription,
-  DrawerFooter,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { MapPin, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { MapPin, AlertCircle, Loader2, ArrowRight, Check } from "lucide-react";
 import { toast } from "sonner";
 
 interface ReportDrawerProps {
@@ -19,12 +18,14 @@ interface ReportDrawerProps {
 }
 
 const waitTimeOptions = ["0-10m", "10-30m", "30m+"];
+const crowdOptions = ["Quiet", "Vibe", "Packed"];
 const vibeOptions = [
   { emoji: "🔥", label: "Fire" },
-  { emoji: "😴", label: "Chill" },
+  { emoji: "🧊", label: "Cold" },
+  { emoji: "😴", label: "Dead" },
   { emoji: "💃", label: "Dancing" },
+  { emoji: "🍻", label: "Drinks" },
 ];
-const crowdOptions = ["Quiet", "Vibe", "Packed"];
 
 // Calculate distance between two coordinates in meters using Haversine formula
 function getDistanceInMeters(
@@ -46,12 +47,14 @@ function getDistanceInMeters(
   return R * c;
 }
 
+type Step = "verify" | "waitTime" | "crowd" | "vibe";
+
 export function ReportDrawer({ isOpen, onClose, barName, barCoordinates }: ReportDrawerProps) {
   const [isVerifying, setIsVerifying] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
+  const [currentStep, setCurrentStep] = useState<Step>("verify");
   const [selectedWaitTime, setSelectedWaitTime] = useState<string | null>(null);
-  const [selectedVibe, setSelectedVibe] = useState<string | null>(null);
   const [selectedCrowd, setSelectedCrowd] = useState<string | null>(null);
+  const [selectedVibe, setSelectedVibe] = useState<string | null>(null);
 
   const verifyLocation = () => {
     setIsVerifying(true);
@@ -72,7 +75,7 @@ export function ReportDrawer({ isOpen, onClose, barName, barCoordinates }: Repor
         );
 
         if (distance <= 50) {
-          setIsVerified(true);
+          setCurrentStep("waitTime");
           toast.success("Location verified! You're at the bar.");
         } else {
           toast.error("You must be at the bar to verify the move.", {
@@ -94,33 +97,58 @@ export function ReportDrawer({ isOpen, onClose, barName, barCoordinates }: Repor
     );
   };
 
-  const handleSubmit = () => {
-    if (!selectedWaitTime || !selectedVibe || !selectedCrowd) {
-      toast.error("Please fill in all fields");
-      return;
-    }
+  const handleWaitTimeSelect = (option: string) => {
+    setSelectedWaitTime(option);
+    setCurrentStep("crowd");
+  };
 
-    // Here you would submit to the backend
-    toast.success("Thanks for reporting the move! 🎉", {
-      description: "Your update will help others tonight.",
+  const handleCrowdSelect = (option: string) => {
+    setSelectedCrowd(option);
+    setCurrentStep("vibe");
+  };
+
+  const handleVibeSelect = (emoji: string) => {
+    setSelectedVibe(emoji);
+    // Submit the report
+    toast.success("Thanks for the move! 🎉", {
+      description: "Your update helps others find the vibe tonight.",
     });
-    
-    // Reset and close
-    setIsVerified(false);
+    resetAndClose();
+  };
+
+  const resetAndClose = () => {
+    setCurrentStep("verify");
     setSelectedWaitTime(null);
-    setSelectedVibe(null);
     setSelectedCrowd(null);
+    setSelectedVibe(null);
     onClose();
   };
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      setIsVerified(false);
-      setSelectedWaitTime(null);
-      setSelectedVibe(null);
-      setSelectedCrowd(null);
-      onClose();
+      resetAndClose();
     }
+  };
+
+  const getStepIndicator = () => {
+    const steps = ["waitTime", "crowd", "vibe"] as const;
+    const currentIndex = steps.indexOf(currentStep as typeof steps[number]);
+    if (currentIndex === -1) return null;
+    
+    return (
+      <div className="flex items-center justify-center gap-2 mb-4">
+        {steps.map((step, index) => (
+          <div
+            key={step}
+            className={`h-2 w-8 rounded-full transition-all ${
+              index <= currentIndex
+                ? "bg-gradient-to-r from-neon-purple to-neon-cyan"
+                : "bg-secondary"
+            }`}
+          />
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -133,9 +161,8 @@ export function ReportDrawer({ isOpen, onClose, barName, barCoordinates }: Repor
           </DrawerDescription>
         </DrawerHeader>
 
-        <div className="px-4 pb-4 space-y-6 overflow-y-auto">
-          {!isVerified ? (
-            // GPS Verification Step
+        <div className="px-4 pb-8 space-y-6">
+          {currentStep === "verify" && (
             <div className="flex flex-col items-center text-center py-8 space-y-4">
               <div className="h-20 w-20 rounded-full bg-neon-purple/10 flex items-center justify-center">
                 <MapPin className="h-10 w-10 text-neon-purple" />
@@ -164,94 +191,74 @@ export function ReportDrawer({ isOpen, onClose, barName, barCoordinates }: Repor
                 )}
               </Button>
             </div>
-          ) : (
-            // Report Form
-            <div className="space-y-6">
-              {/* Verified Badge */}
-              <div className="flex items-center justify-center gap-2 py-2 px-4 bg-green-500/10 rounded-lg text-green-500">
-                <CheckCircle2 className="h-5 w-5" />
-                <span className="font-medium">Location Verified</span>
-              </div>
+          )}
 
-              {/* Wait Time */}
-              <div className="space-y-3">
-                <h4 className="font-bold text-foreground">Wait Time</h4>
-                <div className="grid grid-cols-3 gap-2">
-                  {waitTimeOptions.map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => setSelectedWaitTime(option)}
-                      className={`py-3 px-4 rounded-xl font-medium text-sm transition-all ${
-                        selectedWaitTime === option
-                          ? "bg-gradient-to-r from-neon-purple to-neon-cyan text-white"
-                          : "bg-secondary text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
+          {currentStep === "waitTime" && (
+            <div className="space-y-6 py-4">
+              {getStepIndicator()}
+              <div className="text-center space-y-2">
+                <h3 className="text-xl font-bold text-foreground">How long is the line?</h3>
+                <p className="text-sm text-muted-foreground">Select the current wait time</p>
               </div>
-
-              {/* Vibe */}
-              <div className="space-y-3">
-                <h4 className="font-bold text-foreground">Vibe</h4>
-                <div className="grid grid-cols-3 gap-2">
-                  {vibeOptions.map((option) => (
-                    <button
-                      key={option.emoji}
-                      onClick={() => setSelectedVibe(option.emoji)}
-                      className={`py-3 px-4 rounded-xl text-center transition-all ${
-                        selectedVibe === option.emoji
-                          ? "bg-gradient-to-r from-neon-purple to-neon-cyan"
-                          : "bg-secondary hover:bg-secondary/80"
-                      }`}
-                    >
-                      <span className="text-2xl block mb-1">{option.emoji}</span>
-                      <span className={`text-xs ${selectedVibe === option.emoji ? "text-white" : "text-muted-foreground"}`}>
-                        {option.label}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+              <div className="grid grid-cols-3 gap-3">
+                {waitTimeOptions.map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => handleWaitTimeSelect(option)}
+                    className="group relative py-6 px-4 rounded-2xl font-bold text-lg bg-secondary hover:bg-secondary/80 text-foreground transition-all active:scale-95"
+                  >
+                    {option}
+                    <ArrowRight className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground" />
+                  </button>
+                ))}
               </div>
+            </div>
+          )}
 
-              {/* Crowd */}
-              <div className="space-y-3">
-                <h4 className="font-bold text-foreground">Crowd Level</h4>
-                <div className="grid grid-cols-3 gap-2">
-                  {crowdOptions.map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => setSelectedCrowd(option)}
-                      className={`py-3 px-4 rounded-xl font-medium text-sm transition-all ${
-                        selectedCrowd === option
-                          ? "bg-gradient-to-r from-neon-purple to-neon-cyan text-white"
-                          : "bg-secondary text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
+          {currentStep === "crowd" && (
+            <div className="space-y-6 py-4">
+              {getStepIndicator()}
+              <div className="text-center space-y-2">
+                <h3 className="text-xl font-bold text-foreground">What's the crowd like?</h3>
+                <p className="text-sm text-muted-foreground">How busy is it right now?</p>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                {crowdOptions.map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => handleCrowdSelect(option)}
+                    className="group relative py-6 px-4 rounded-2xl font-bold text-lg bg-secondary hover:bg-secondary/80 text-foreground transition-all active:scale-95"
+                  >
+                    {option}
+                    <ArrowRight className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {currentStep === "vibe" && (
+            <div className="space-y-6 py-4">
+              {getStepIndicator()}
+              <div className="text-center space-y-2">
+                <h3 className="text-xl font-bold text-foreground">Pick a Vibe Emoji</h3>
+                <p className="text-sm text-muted-foreground">How would you describe the energy?</p>
+              </div>
+              <div className="grid grid-cols-5 gap-2">
+                {vibeOptions.map((option) => (
+                  <button
+                    key={option.emoji}
+                    onClick={() => handleVibeSelect(option.emoji)}
+                    className="group flex flex-col items-center py-4 px-2 rounded-2xl bg-secondary hover:bg-secondary/80 transition-all active:scale-95"
+                  >
+                    <span className="text-3xl mb-1">{option.emoji}</span>
+                    <span className="text-xs text-muted-foreground">{option.label}</span>
+                  </button>
+                ))}
               </div>
             </div>
           )}
         </div>
-
-        {isVerified && (
-          <DrawerFooter>
-            <Button
-              onClick={handleSubmit}
-              className="w-full h-12 bg-gradient-to-r from-neon-purple to-neon-cyan text-white font-bold"
-            >
-              Submit Report
-            </Button>
-            <Button variant="outline" onClick={() => handleOpenChange(false)}>
-              Cancel
-            </Button>
-          </DrawerFooter>
-        )}
       </DrawerContent>
     </Drawer>
   );
