@@ -1,6 +1,8 @@
 import { Star, MapPin, Users, Clock, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface BarCardProps {
+  id: string;
   name: string;
   image: string;
   rating: number;
@@ -25,6 +27,7 @@ const crowdBg = {
 };
 
 export function BarCard({ 
+  id,
   name, 
   image, 
   rating, 
@@ -33,8 +36,13 @@ export function BarCard({
   hours, 
   tags 
 }: BarCardProps) {
+  const navigate = useNavigate();
+
   return (
-    <div className="bar-card group cursor-pointer">
+    <div 
+      className="bar-card group cursor-pointer"
+      onClick={() => navigate(`/bar/${id}`)}
+    >
       <div className="flex gap-4">
         {/* Image */}
         <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg">
