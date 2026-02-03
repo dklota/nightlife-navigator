@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Nightlife Navigator",
-    "slug": "nightlife-navigator",
+    "name": " WTM",
+    "slug": "wtm",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "nightlife-navigator",
+    "scheme": "wtm",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.nightlifenavigator.app",
+      "bundleIdentifier": "com.wtm.app",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "We need your location to show nearby bars and enable check-ins.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "We use your location to notify you when you're near a bar for quick check-ins.",
@@ -29,7 +29,7 @@
         "backgroundColor": "#1a1a2e"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.nightlifenavigator.app",
+      "package": "com.wtm.app",
       "permissions": [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
@@ -48,14 +48,14 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow Nightlife Navigator to use your location for nearby bar detection and check-ins."
+          "locationAlwaysAndWhenInUsePermission": "Allow WTM to use your location for nearby bar detection and check-ins."
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow Nightlife Navigator to access your photos.",
-          "cameraPermission": "Allow Nightlife Navigator to take photos."
+          "photosPermission": "Allow  WTM to access your photos.",
+          "cameraPermission": "Allow WTM to take photos."
         }
       ],
       [
@@ -64,7 +64,8 @@
           "icon": "./assets/images/notification-icon.png",
           "color": "#6366f1"
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true

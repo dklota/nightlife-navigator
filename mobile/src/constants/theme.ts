@@ -52,12 +52,12 @@ export const Colors = {
     error: '#ef4444',
     info: '#3b82f6',
 
-    // Traffic/Heatmap colors - Neon cyberpunk palette
+    // Traffic/Heatmap colors - Neon Nights palette (electric blue to hot pink)
     traffic: {
-        low: '#00ff88',       // Neon green - chill
-        medium: '#00d4ff',    // Neon cyan - warming up
-        high: '#ff00ff',      // Neon magenta - busy
-        veryHigh: '#ff0055',  // Neon pink/red - packed
+        low: '#22d3ee',       // Cyan - chill
+        medium: '#00d4ff',    // Electric blue - warming up
+        high: '#8b5cf6',      // Purple - busy
+        veryHigh: '#ff0080',  // Hot pink - packed
     },
 
     // Neon glow colors for effects
@@ -114,7 +114,10 @@ export const BorderRadius = {
 // Typography
 export const Typography = {
     fontFamily: {
-        sans: 'System',
+        sans: 'Outfit_400Regular',
+        sansMedium: 'Outfit_500Medium',
+        sansSemibold: 'Outfit_600SemiBold',
+        sansBold: 'Outfit_700Bold',
         mono: 'SpaceMono',
     },
     fontSize: {

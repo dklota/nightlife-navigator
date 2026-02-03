@@ -16,16 +16,54 @@ import { Colors, Spacing, Typography, BorderRadius } from '../../src/constants/t
 import { VIBE_EMOJIS, WAIT_TIME_OPTIONS } from '../../src/types';
 
 // Mock bar data - will be fetched from Supabase
-const MOCK_BAR = {
-    id: '1',
-    name: 'The Grad',
-    address: '805 Russell Blvd, Davis, CA',
-};
+const MOCK_BARS = [
+    {
+        id: '1',
+        name: 'G St Wunderbar',
+        address: '228 G St, Davis, CA',
+    },
+    {
+        id: '2',
+        name: 'Wiki Bar',
+        address: '215 G St, Davis, CA',
+    },
+    {
+        id: '3',
+        name: 'Parkside Sports Bar & Grill',
+        address: '330 G St, Davis, CA',
+    },
+    {
+        id: '4',
+        name: 'Shipwrecked Tiki Bar',
+        address: '228 G St, Davis, CA',
+    },
+    {
+        id: '5',
+        name: 'University of Beer',
+        address: '615 3rd St, Davis, CA',
+    },
+    {
+        id: '6',
+        name: "Bull 'N Mouth",
+        address: '117 E St, Davis, CA',
+    },
+    {
+        id: '7',
+        name: "Sophia's Thai Bar & Kitchen",
+        address: '129 E St, Davis, CA',
+    },
+    {
+        id: '8',
+        name: "Woodstock's Pizza Davis",
+        address: '219 G St, Davis, CA',
+    },
+];
 
 type Visibility = 'public' | 'friends' | 'private';
 
 export default function CheckInScreen() {
     const { barId } = useLocalSearchParams<{ barId: string }>();
+    const bar = MOCK_BARS.find(b => b.id === barId) || MOCK_BARS[0];
 
     const [selectedWaitTime, setSelectedWaitTime] = useState<number | null>(null);
     const [selectedVibe, setSelectedVibe] = useState<string | null>(null);
@@ -99,7 +137,7 @@ export default function CheckInScreen() {
                 </TouchableOpacity>
                 <View style={styles.headerInfo}>
                     <Text style={styles.headerTitle}>Check In</Text>
-                    <Text style={styles.barName}>📍 {MOCK_BAR.name}</Text>
+                    <Text style={styles.barName}>📍 {bar.name}</Text>
                 </View>
             </View>
 

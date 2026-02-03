@@ -32,7 +32,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Explore',
-          headerTitle: 'Nightlife Navigator',
+          headerTitle: 'WTM',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? 'map' : 'map-outline'}
@@ -58,7 +58,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="activity"
         options={{
-          title: 'Activity',
+          title: 'Live Feed',
+          headerTitle: 'Live Feed',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? 'pulse' : 'pulse-outline'}

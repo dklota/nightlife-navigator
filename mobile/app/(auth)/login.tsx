@@ -52,7 +52,7 @@ export default function LoginScreen() {
                     {/* Logo & Title */}
                     <View style={styles.header}>
                         <Text style={styles.logo}>🌙</Text>
-                        <Text style={styles.title}>Nightlife Navigator</Text>
+                        <Text style={styles.title}>WTM</Text>
                         <Text style={styles.subtitle}>Find your vibe tonight</Text>
                     </View>
 
@@ -141,12 +141,13 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: Typography.fontSize['3xl'],
-        fontWeight: Typography.fontWeight.bold,
+        fontFamily: Typography.fontFamily.sansBold,
         color: Colors.text.primary,
         marginBottom: Spacing.xs,
     },
     subtitle: {
         fontSize: Typography.fontSize.lg,
+        fontFamily: Typography.fontFamily.sans,
         color: Colors.text.secondary,
     },
     form: {
@@ -157,7 +158,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: Typography.fontSize.sm,
-        fontWeight: Typography.fontWeight.medium,
+        fontFamily: Typography.fontFamily.sansMedium,
         color: Colors.text.secondary,
         marginLeft: Spacing.xs,
     },
@@ -167,6 +168,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: Spacing.md,
         paddingVertical: Spacing.md,
         fontSize: Typography.fontSize.base,
+        fontFamily: Typography.fontFamily.sans,
         color: Colors.text.primary,
         borderWidth: 1,
         borderColor: Colors.dark[600],
@@ -183,7 +185,7 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         fontSize: Typography.fontSize.lg,
-        fontWeight: Typography.fontWeight.semibold,
+        fontFamily: Typography.fontFamily.sansSemibold,
         color: Colors.text.primary,
     },
     footer: {
@@ -194,10 +196,11 @@ const styles = StyleSheet.create({
     footerText: {
         color: Colors.text.secondary,
         fontSize: Typography.fontSize.base,
+        fontFamily: Typography.fontFamily.sans,
     },
     linkText: {
         color: Colors.primary[400],
         fontSize: Typography.fontSize.base,
-        fontWeight: Typography.fontWeight.semibold,
+        fontFamily: Typography.fontFamily.sansSemibold,
     },
 });

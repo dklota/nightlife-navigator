@@ -1,24 +1,38 @@
 import React from 'react';
 import { StyleSheet, View, Text, FlatList, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { Colors, Spacing, Typography, BorderRadius } from '../../src/constants/theme';
 
 // Mock data - replace with Supabase
 const MOCK_FRIENDS = [
-    { id: '1', name: 'Alex Johnson', avatar: null, location: 'The Grad', checkedInAt: '10 min ago' },
-    { id: '2', name: 'Sam Wilson', avatar: null, location: null, lastSeen: '2 hours ago' },
-    { id: '3', name: 'Jordan Lee', avatar: null, location: 'Woodstocks Pizza', checkedInAt: '25 min ago' },
+    { id: '1', name: 'Alex Johnson', avatar: 'https://i.pravatar.cc/150?u=alex', location: 'G St Wunderbar', checkedInAt: '10 min ago' },
+    { id: '2', name: 'Sam Wilson', avatar: 'https://i.pravatar.cc/150?u=sam', location: null, lastSeen: '2 hours ago' },
+    { id: '3', name: 'Jordan Lee', avatar: 'https://i.pravatar.cc/150?u=jordan', location: "Woodstock's Pizza", checkedInAt: '25 min ago' },
+    { id: '5', name: 'Taylor Smith', avatar: 'https://i.pravatar.cc/150?u=taylor', location: 'Shipwrecked Tiki Bar', checkedInAt: '5 min ago' },
+    { id: '6', name: 'Morgan Chen', avatar: 'https://i.pravatar.cc/150?u=morgan', location: 'Shipwrecked Tiki Bar', checkedInAt: '15 min ago' },
+    { id: '7', name: 'Jamie Vough', avatar: 'https://i.pravatar.cc/150?u=jamie', location: 'University of Beer', checkedInAt: '1 hour ago' },
 ];
 
 const FRIEND_REQUESTS = [
-    { id: '4', name: 'Taylor Smith', avatar: null, mutualFriends: 3 },
+    { id: '8', name: 'Casey Rivera', avatar: 'https://i.pravatar.cc/150?u=casey', mutualFriends: 5 },
+    { id: '9', name: 'Riley Brooks', avatar: 'https://i.pravatar.cc/150?u=riley', mutualFriends: 2 },
 ];
 
 export default function FriendsScreen() {
+    const router = useRouter();
+
     const renderFriend = ({ item }: { item: typeof MOCK_FRIENDS[0] }) => (
-        <TouchableOpacity style={styles.friendCard}>
+        <TouchableOpacity
+            style={styles.friendCard}
+            onPress={() => router.push(`/chat/${item.id}`)}
+        >
             <View style={styles.avatar}>
-                <Text style={styles.avatarText}>{item.name.charAt(0)}</Text>
+                {item.avatar ? (
+                    <Image source={{ uri: item.avatar }} style={styles.avatarImage} />
+                ) : (
+                    <Text style={styles.avatarText}>{item.name.charAt(0)}</Text>
+                )}
             </View>
             <View style={styles.friendInfo}>
                 <Text style={styles.friendName}>{item.name}</Text>
@@ -27,21 +41,27 @@ export default function FriendsScreen() {
                         <View style={styles.liveBadge}>
                             <Text style={styles.liveText}>LIVE</Text>
                         </View>
-                        <Text style={styles.locationText}>📍 {item.location}</Text>
+                        <Text style={styles.locationText} numberOfLines={1}>📍 {item.location}</Text>
                         <Text style={styles.timeText}>{item.checkedInAt}</Text>
                     </View>
                 ) : (
-                    <Text style={styles.offlineText}>Last seen {item.lastSeen}</Text>
+                    <Text style={styles.offlineText} numberOfLines={1}>Last seen {item.lastSeen}</Text>
                 )}
             </View>
-            <Ionicons name="chevron-forward" size={20} color={Colors.text.muted} />
+            <View style={styles.friendActions}>
+                <Ionicons name="chevron-forward" size={20} color={Colors.text.muted} />
+            </View>
         </TouchableOpacity>
     );
 
     const renderRequest = ({ item }: { item: typeof FRIEND_REQUESTS[0] }) => (
         <View style={styles.requestCard}>
             <View style={styles.avatar}>
-                <Text style={styles.avatarText}>{item.name.charAt(0)}</Text>
+                {item.avatar ? (
+                    <Image source={{ uri: item.avatar }} style={styles.avatarImage} />
+                ) : (
+                    <Text style={styles.avatarText}>{item.name.charAt(0)}</Text>
+                )}
             </View>
             <View style={styles.friendInfo}>
                 <Text style={styles.friendName}>{item.name}</Text>
@@ -149,6 +169,11 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.primary[600],
         alignItems: 'center',
         justifyContent: 'center',
+        overflow: 'hidden',
+    },
+    avatarImage: {
+        width: '100%',
+        height: '100%',
     },
     avatarText: {
         color: Colors.text.primary,
@@ -158,6 +183,7 @@ const styles = StyleSheet.create({
     friendInfo: {
         flex: 1,
         marginLeft: Spacing.md,
+        marginRight: Spacing.sm,
     },
     friendName: {
         fontSize: Typography.fontSize.base,
@@ -217,4 +243,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    friendActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: Spacing.sm,
+    },
+
 });

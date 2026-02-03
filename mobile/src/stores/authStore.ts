@@ -80,7 +80,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
             });
         } catch (error) {
             console.error('Auth initialization error:', error);
-            set({ isLoading: false });
+            // Reset to unauthenticated state on error so login screen shows
+            set({
+                session: null,
+                user: null,
+                isAuthenticated: false,
+                isStudentVerified: false,
+                isLoading: false,
+            });
         }
     },
 

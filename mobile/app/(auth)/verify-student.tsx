@@ -41,7 +41,7 @@ export default function VerifyStudentScreen() {
         } else {
             Alert.alert(
                 'Verified! 🎉',
-                'Your student status has been confirmed. Welcome to Nightlife Navigator!',
+                'Your student status has been confirmed. Welcome to WTM!',
                 [{ text: 'Let\'s Go!', onPress: () => router.replace('/(tabs)') }]
             );
         }

@@ -1,52 +1,78 @@
 import React from 'react';
 import { StyleSheet, View, Text, FlatList, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { Colors, Spacing, Typography, BorderRadius } from '../../src/constants/theme';
 
 // Mock data - replace with Supabase
 const MOCK_ACTIVITY = [
     {
         id: '1',
-        user: { name: 'Alex Johnson', avatar: null },
-        bar: 'The Grad',
+        user: { name: 'Alex Johnson', avatar: 'https://i.pravatar.cc/150?u=alex' },
+        bar: 'G St Wunderbar',
         vibe: '🔥',
         waitTime: '15-30 min',
         comment: 'DJ is going crazy tonight!',
         visibility: 'public',
         createdAt: '10 min ago',
-        mediaCount: 2,
+        media: [
+            'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=500&fit=crop',
+            'https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=500&fit=crop'
+        ],
     },
     {
         id: '2',
-        user: { name: 'Jordan Lee', avatar: null },
-        bar: 'Woodstocks Pizza',
+        user: { name: 'Jordan Lee', avatar: 'https://i.pravatar.cc/150?u=jordan' },
+        bar: "Woodstock's Pizza",
         vibe: '🎉',
         waitTime: 'No wait',
-        comment: null,
+        comment: 'Best pizza in Davis 🍕',
         visibility: 'friends',
         createdAt: '25 min ago',
-        mediaCount: 0,
+        media: [],
     },
     {
         id: '3',
-        user: { name: 'Sam Wilson', avatar: null },
-        bar: 'Davis Beer Shoppe',
-        vibe: '😎',
-        waitTime: '5-15 min',
-        comment: 'Great craft beer selection',
+        user: { name: 'Taylor Smith', avatar: 'https://i.pravatar.cc/150?u=taylor' },
+        bar: 'Shipwrecked Tiki Bar',
+        vibe: '🍹',
+        waitTime: '30-45 min',
+        comment: 'Tiki drinks are 10/10!',
         visibility: 'public',
         createdAt: '1 hour ago',
-        mediaCount: 1,
+        media: [
+            'https://images.unsplash.com/photo-1516997121675-4c2d1684aa3e?w=500&fit=crop'
+        ],
+    },
+    {
+        id: '4',
+        user: { name: 'Jamie Vough', avatar: 'https://i.pravatar.cc/150?u=jamie' },
+        bar: 'University of Beer',
+        vibe: '🍻',
+        waitTime: '5-10 min',
+        comment: 'Huge tap list tonight.',
+        visibility: 'public',
+        createdAt: '2 hours ago',
+        media: [],
     },
 ];
 
 export default function ActivityScreen() {
+    const router = useRouter();
+
     const renderActivity = ({ item }: { item: typeof MOCK_ACTIVITY[0] }) => (
-        <View style={styles.activityCard}>
+        <TouchableOpacity
+            style={styles.activityCard}
+            onPress={() => router.push(`/feed/${item.id}`)}
+        >
             {/* Header */}
             <View style={styles.cardHeader}>
                 <View style={styles.avatar}>
-                    <Text style={styles.avatarText}>{item.user.name.charAt(0)}</Text>
+                    {item.user.avatar ? (
+                        <Image source={{ uri: item.user.avatar }} style={styles.avatarImage} />
+                    ) : (
+                        <Text style={styles.avatarText}>{item.user.name.charAt(0)}</Text>
+                    )}
                 </View>
                 <View style={styles.headerInfo}>
                     <Text style={styles.userName}>{item.user.name}</Text>
@@ -76,30 +102,41 @@ export default function ActivityScreen() {
                 <Text style={styles.comment}>"{item.comment}"</Text>
             )}
 
-            {/* Media indicator */}
-            {item.mediaCount > 0 && (
-                <View style={styles.mediaRow}>
-                    <Ionicons name="images" size={16} color={Colors.text.muted} />
-                    <Text style={styles.mediaText}>{item.mediaCount} photo{item.mediaCount > 1 ? 's' : ''}</Text>
+            {/* Photos */}
+            {item.media && item.media.length > 0 && (
+                <View style={styles.mediaContainer}>
+                    <FlatList
+                        data={item.media}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        keyExtractor={(img, idx) => idx.toString()}
+                        renderItem={({ item: img }) => (
+                            <Image source={{ uri: img }} style={styles.feedImage} />
+                        )}
+                        style={styles.mediaList}
+                    />
                 </View>
             )}
 
             {/* Actions */}
             <View style={styles.actions}>
                 <TouchableOpacity style={styles.actionBtn}>
-                    <Ionicons name="heart-outline" size={22} color={Colors.text.secondary} />
+                    <Ionicons name="heart-outline" size={20} color={Colors.text.secondary} />
                     <Text style={styles.actionText}>Like</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.actionBtn}>
-                    <Ionicons name="chatbubble-outline" size={22} color={Colors.text.secondary} />
-                    <Text style={styles.actionText}>Comment</Text>
+                <TouchableOpacity
+                    style={styles.actionBtn}
+                    onPress={() => router.push(`/feed/${item.id}`)}
+                >
+                    <Ionicons name="chatbubble-outline" size={20} color={Colors.text.secondary} />
+                    <Text style={styles.actionText}>Reply</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.actionBtn}>
-                    <Ionicons name="navigate-outline" size={22} color={Colors.text.secondary} />
-                    <Text style={styles.actionText}>Go</Text>
+                    <Ionicons name="share-outline" size={20} color={Colors.text.secondary} />
+                    <Text style={styles.actionText}>Share</Text>
                 </TouchableOpacity>
             </View>
-        </View>
+        </TouchableOpacity>
     );
 
     return (
@@ -140,16 +177,21 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     avatar: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         backgroundColor: Colors.primary[600],
         alignItems: 'center',
         justifyContent: 'center',
+        overflow: 'hidden',
+    },
+    avatarImage: {
+        width: '100%',
+        height: '100%',
     },
     avatarText: {
         color: Colors.text.primary,
-        fontSize: Typography.fontSize.base,
+        fontSize: Typography.fontSize.lg,
         fontWeight: Typography.fontWeight.bold,
     },
     headerInfo: {
@@ -241,6 +283,19 @@ const styles = StyleSheet.create({
     actionText: {
         color: Colors.text.secondary,
         fontSize: Typography.fontSize.sm,
+    },
+    mediaContainer: {
+        marginTop: Spacing.md,
+    },
+    mediaList: {
+        borderRadius: BorderRadius.lg,
+    },
+    feedImage: {
+        width: 200,
+        height: 150,
+        borderRadius: BorderRadius.lg,
+        marginRight: Spacing.sm,
+        backgroundColor: Colors.dark[700],
     },
     empty: {
         alignItems: 'center',

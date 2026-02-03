@@ -94,7 +94,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
 
             {/* App Version */}
-            <Text style={styles.version}>Nightlife Navigator v1.0.0</Text>
+            <Text style={styles.version}> WTM v1.0.0</Text>
         </ScrollView>
     );
 }
