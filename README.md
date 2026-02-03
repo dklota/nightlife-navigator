@@ -1,73 +1,53 @@
-# Welcome to your Lovable project
+# Nightlife Navigator
 
-## Project info
+A React Native mobile app for tracking bar traffic, checking in, and discovering exclusive deals with friends.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Features
 
-## How can I edit this code?
+- 🎓 **Student Verification** - Verify with .edu email for exclusive access
+- 🗺️ **Live Map** - See bar popularity with color-coded markers
+- ⚡ **Quick Check-In** - Log wait time, vibe, and photos in seconds
+- 👥 **Friends** - See where your friends are checked in
+- 🎁 **Exclusive Deals** - Unlock student-only discounts after check-in
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- **Frontend**: React Native + Expo
+- **Navigation**: Expo Router
+- **Backend**: Supabase
+- **State**: Zustand
+- **Maps**: react-native-maps
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```bash
+cd mobile
+npm install
+npm start
 ```
 
-**Edit a file directly in GitHub**
+Press `i` for iOS simulator or `a` for Android emulator.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Project Structure
 
-**Use GitHub Codespaces**
+```
+mobile/
+├── app/                    # Screens (Expo Router)
+│   ├── (auth)/             # Login, Signup, Verification
+│   ├── (tabs)/             # Main tabs (Explore, Friends, Activity, Profile)
+│   └── checkin/            # Check-in flow
+├── src/
+│   ├── services/           # Supabase client
+│   ├── stores/             # Zustand state
+│   ├── types/              # TypeScript interfaces
+│   └── constants/          # Theme & config
+└── assets/                 # Images & fonts
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Environment Variables
 
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Create `mobile/.env`:
+```
+EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
+EXPO_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+```
