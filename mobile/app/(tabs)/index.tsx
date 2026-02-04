@@ -408,8 +408,6 @@ export default function ExploreScreen() {
                   }
                 ]}
               />
-              {/* Friends avatar stack on map removed to keep dots clean */}
-              {/* Individual friend markers are visible in 'All' and 'Friends' modes */}
             </View>
           </Marker>
         ))}
@@ -897,12 +895,12 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: Colors.dark[800],
+    backgroundColor: Colors.dark[900], // Match main background for seamless look
     borderTopLeftRadius: BorderRadius.xl,
     borderTopRightRadius: BorderRadius.xl,
     borderWidth: 1,
     borderBottomWidth: 0,
-    borderColor: Colors.dark[600],
+    borderColor: Colors.dark[700],
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.3,
@@ -913,9 +911,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: Spacing.md,
-    paddingTop: Spacing.sm,
-    paddingBottom: Spacing.sm,
+    paddingHorizontal: Spacing.lg, // More breathing room
+    paddingTop: Spacing.md,
+    paddingBottom: Spacing.md,
   },
   dragIndicator: {
     position: 'absolute',
@@ -924,13 +922,13 @@ const styles = StyleSheet.create({
     marginLeft: -20,
     width: 40,
     height: 4,
-    backgroundColor: Colors.dark[500],
+    backgroundColor: Colors.dark[600],
     borderRadius: 2,
   },
   listTitle: {
     flex: 1,
-    fontSize: Typography.fontSize.base,
-    fontWeight: Typography.fontWeight.semibold,
+    fontSize: Typography.fontSize.lg, // Larger title
+    fontWeight: Typography.fontWeight.bold,
     color: Colors.text.primary,
     marginLeft: Spacing.xs,
     marginTop: Spacing.xs,
@@ -942,16 +940,16 @@ const styles = StyleSheet.create({
   barListItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.dark[600],
+    paddingVertical: Spacing.md, // Increased padding
+    marginBottom: Spacing.sm, // Spacing between items
+    borderRadius: BorderRadius.xl, // Rounded corners for hover effect
+    // Removed borderBottomWidth to use whitespace instead
     gap: Spacing.md,
   },
   barListItemSelected: {
-    backgroundColor: `${Colors.dark[700]}80`,
-    marginHorizontal: -Spacing.md,
+    backgroundColor: Colors.dark[800], // Subtle highlight
     paddingHorizontal: Spacing.md,
-    borderRadius: BorderRadius.md,
+    marginHorizontal: -Spacing.md,
   },
   barListDot: {
     width: 16,
@@ -964,7 +962,7 @@ const styles = StyleSheet.create({
   barListHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 6, // More space
     gap: Spacing.sm,
   },
   barListSocial: {
@@ -987,69 +985,78 @@ const styles = StyleSheet.create({
   projectionRow: {
     flexDirection: 'row',
     gap: Spacing.md,
-    marginTop: 4,
+    marginTop: 6,
   },
   projectionLabel: {
     color: Colors.text.muted,
     fontSize: Typography.fontSize.xs,
+    fontWeight: Typography.fontWeight.medium,
   },
   barListImage: {
-    width: 56,
-    height: 56,
-    borderRadius: BorderRadius.md,
+    width: 64, // Larger images
+    height: 64,
+    borderRadius: BorderRadius.lg,
     backgroundColor: Colors.dark[600],
   },
   barListName: {
     flex: 1,
     fontSize: Typography.fontSize.base,
-    fontWeight: Typography.fontWeight.semibold,
+    fontWeight: Typography.fontWeight.bold,
     color: Colors.text.primary,
   },
   barListMeta: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.xs,
+    gap: Spacing.sm,
     flexWrap: 'wrap',
   },
   barListEmoji: {
     fontSize: 16,
   },
   barListVibeTag: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
   },
   barListVibe: {
     fontSize: Typography.fontSize.xs,
-    fontWeight: Typography.fontWeight.medium,
+    fontWeight: Typography.fontWeight.bold, // Bolder vibe text
   },
   barListWait: {
     fontSize: Typography.fontSize.xs,
-    color: Colors.text.muted,
+    color: Colors.text.secondary, // Slightly lighter than muted
+    fontWeight: Typography.fontWeight.medium,
   },
   miniCheckIn: {
-    backgroundColor: Colors.primary[500],
+    backgroundColor: `${Colors.primary[500]}15`, // Subtle button
     paddingHorizontal: Spacing.md,
     paddingVertical: 8,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: `${Colors.primary[500]}50`,
   },
   miniCheckInText: {
-    fontSize: Typography.fontSize.sm,
+    fontSize: Typography.fontSize.xs,
     fontWeight: Typography.fontWeight.bold,
-    color: '#fff',
+    color: Colors.primary[400],
   },
   // Selected Bar Card
   barCard: {
     position: 'absolute',
-    bottom: 200,
+    bottom: 240, // Moved up slightly
     left: Spacing.md,
     right: Spacing.md,
-    backgroundColor: `${Colors.dark[800]}f5`,
+    backgroundColor: Colors.dark[800],
     borderRadius: BorderRadius.xl,
-    padding: Spacing.md,
+    padding: Spacing.lg, // More padding
     borderWidth: 1,
-    borderColor: Colors.dark[600],
+    borderColor: Colors.dark[700],
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 8,
   },
   barCardHeader: {
     flexDirection: 'row',
@@ -1063,48 +1070,52 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
-    marginBottom: 4,
+    marginBottom: 6,
   },
   barCardDot: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
   },
   barName: {
-    fontSize: Typography.fontSize.lg,
+    fontSize: Typography.fontSize.xl,
     fontWeight: Typography.fontWeight.bold,
     color: Colors.text.primary,
   },
   barMeta: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.xs,
-    marginLeft: 22,
+    gap: Spacing.sm,
+    marginLeft: 0, // Reset indentation
+    marginTop: 4,
   },
   vibeText: {
     fontSize: Typography.fontSize.sm,
-    fontWeight: Typography.fontWeight.semibold,
+    fontWeight: Typography.fontWeight.bold,
   },
   waitText: {
-    color: Colors.text.muted,
+    color: Colors.text.secondary,
     fontSize: Typography.fontSize.sm,
   },
   closeButton: {
     padding: Spacing.xs,
+    backgroundColor: Colors.dark[700],
+    borderRadius: BorderRadius.full,
   },
   barActions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: Spacing.md,
+    marginTop: Spacing.lg,
     paddingTop: Spacing.md,
     borderTopWidth: 1,
-    borderTopColor: Colors.dark[600],
+    borderTopColor: Colors.dark[700], // Subtle separator
   },
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
+    padding: Spacing.xs,
   },
   actionText: {
     fontSize: Typography.fontSize.sm,
@@ -1114,9 +1125,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.lg,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: 10,
+    borderRadius: BorderRadius.full,
   },
   checkInText: {
     color: '#fff',
@@ -1128,23 +1139,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: `${Colors.neon.green}15`,
+    backgroundColor: `${Colors.neon.green}10`, // Very subtle green bg
     borderWidth: 1,
-    borderColor: Colors.neon.green,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.sm,
-    marginTop: Spacing.md,
+    borderColor: `${Colors.neon.green}40`,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.md,
+    marginTop: Spacing.lg,
   },
   skipLineLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.sm,
+    gap: Spacing.md,
   },
   skipLineBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: Colors.neon.green,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: `${Colors.neon.green}20`,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1155,7 +1166,7 @@ const styles = StyleSheet.create({
   },
   skipLineSubtitle: {
     fontSize: Typography.fontSize.xs,
-    color: Colors.text.muted,
+    color: Colors.text.secondary,
   },
   skipLineRight: {
     alignItems: 'flex-end',
@@ -1163,7 +1174,7 @@ const styles = StyleSheet.create({
   skipLinePrice: {
     fontSize: Typography.fontSize.xl,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.neon.green,
+    color: Colors.text.primary,
   },
   skipLinePer: {
     fontSize: Typography.fontSize.xs,

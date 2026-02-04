@@ -1,81 +1,81 @@
 // App theme colors and styling constants
 export const Colors = {
-    // Primary brand colors
+    // Primary brand colors - Simplistic Purple
     primary: {
-        50: '#eef2ff',
-        100: '#e0e7ff',
-        200: '#c7d2fe',
-        300: '#a5b4fc',
-        400: '#818cf8',
-        500: '#6366f1', // Main primary
-        600: '#4f46e5',
-        700: '#4338ca',
-        800: '#3730a3',
-        900: '#312e81',
+        50: '#f4eafa',
+        100: '#e6d1f4',
+        200: '#cd9eee',
+        300: '#b46be8',
+        400: '#9d42e2',
+        500: '#8027BA', // Main primary - Requested Purple
+        600: '#6d219e',
+        700: '#5a1b82',
+        800: '#471566',
+        900: '#340f4b',
     },
 
-    // Secondary accent colors
+    // Secondary accent colors - Monochromatic/Silver for simplistic feel
     secondary: {
-        50: '#fdf4ff',
-        100: '#fae8ff',
-        200: '#f5d0fe',
-        300: '#f0abfc',
-        400: '#e879f9',
-        500: '#d946ef', // Main secondary
-        600: '#c026d3',
-        700: '#a21caf',
-        800: '#86198f',
-        900: '#701a75',
-    },
-
-    // Dark theme backgrounds
-    dark: {
-        900: '#0f0f1a',
-        800: '#1a1a2e',
-        700: '#252542',
-        600: '#2f2f4a',
-        500: '#3d3d5c',
-    },
-
-    // Light theme backgrounds
-    light: {
-        50: '#fafafa',
+        50: '#fcfcfc',
         100: '#f5f5f5',
         200: '#e5e5e5',
         300: '#d4d4d4',
         400: '#a3a3a3',
+        500: '#737373',
+        600: '#52525b',
+        700: '#404040',
+        800: '#262626',
+        900: '#171717',
+    },
+
+    // Dark theme backgrounds - Deep Black & Spotify Grey Surfaces
+    dark: {
+        900: '#000000', // Pure Black (Main Background)
+        800: '#121212', // Spotify "Surface" (Cards, Headers)
+        700: '#282828', // Lighter Surface (Elevated)
+        600: '#1c1c1c',
+        500: '#262626',
+    },
+
+    // Light theme backgrounds
+    light: {
+        50: '#ffffff',
+        100: '#fafafa',
+        200: '#f5f5f5',
+        300: '#e5e5e5',
+        400: '#d4d4d4',
     },
 
     // Semantic colors
-    success: '#22c55e',
+    success: '#1ed760', // Spotify Green-ish for success
     warning: '#f59e0b',
     error: '#ef4444',
-    info: '#3b82f6',
+    info: '#8027BA',
 
-    // Traffic/Heatmap colors - Neon Nights palette (electric blue to hot pink)
+    // Traffic/Heatmap colors - Simplified Neon
     traffic: {
-        low: '#22d3ee',       // Cyan - chill
-        medium: '#00d4ff',    // Electric blue - warming up
-        high: '#8b5cf6',      // Purple - busy
-        veryHigh: '#ff0080',  // Hot pink - packed
+        low: '#282828',       // Dark grey - empty
+        medium: '#4c1d6e',    // Deep purple - quiet
+        high: '#8027BA',      // Main Purple - busy
+        veryHigh: '#d946ef',  // Hot pink - packed (accent)
     },
 
     // Neon glow colors for effects
     neon: {
-        green: '#00ff88',
+        green: '#1ed760',
         cyan: '#00d4ff',
-        magenta: '#ff00ff',
-        pink: '#ff0055',
-        purple: '#8b5cf6',
+        magenta: '#d946ef',
+        pink: '#ff0080',
+        purple: '#8027BA',
         blue: '#3b82f6',
     },
 
     // Text colors
     text: {
-        primary: '#ffffff',
-        secondary: '#a1a1aa',
-        muted: '#71717a',
-        inverse: '#18181b',
+        primary: '#FFFFFF',   // Pure White
+        secondary: '#B3B3B3', // Spotify Grey
+        muted: '#A7A7A7',     // Slightly darker grey
+        inverse: '#000000',
     },
 };
 
@@ -114,10 +114,10 @@ export const BorderRadius = {
 // Typography
 export const Typography = {
     fontFamily: {
-        sans: 'Outfit_400Regular',
-        sansMedium: 'Outfit_500Medium',
-        sansSemibold: 'Outfit_600SemiBold',
-        sansBold: 'Outfit_700Bold',
+        sans: 'Inter_400Regular',
+        sansMedium: 'Inter_500Medium',
+        sansSemibold: 'Inter_600SemiBold',
+        sansBold: 'Inter_700Bold',
         mono: 'SpaceMono',
     },
     fontSize: {

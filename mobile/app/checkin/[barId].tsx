@@ -5,15 +5,17 @@ import {
     Text,
     TouchableOpacity,
     TextInput,
-    ScrollView,
     Alert,
     ActivityIndicator,
+    Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Colors, Spacing, Typography, BorderRadius } from '../../src/constants/theme';
 import { VIBE_EMOJIS, WAIT_TIME_OPTIONS } from '../../src/types';
+
+const { width } = Dimensions.get('window');
 
 // Mock bar data - will be fetched from Supabase
 const MOCK_BARS = [
@@ -65,12 +67,21 @@ export default function CheckInScreen() {
     const { barId } = useLocalSearchParams<{ barId: string }>();
     const bar = MOCK_BARS.find(b => b.id === barId) || MOCK_BARS[0];
 
+    // State
+    const [currentStep, setCurrentStep] = useState(0);
     const [selectedWaitTime, setSelectedWaitTime] = useState<number | null>(null);
     const [selectedVibe, setSelectedVibe] = useState<string | null>(null);
     const [comment, setComment] = useState('');
     const [visibility, setVisibility] = useState<Visibility>('friends');
     const [media, setMedia] = useState<string[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const steps = [
+        { title: 'Wait Time', description: 'How long was the wait?' },
+        { title: 'Vibe', description: "What's the vibe?" },
+        { title: 'Media', description: 'Add photos/videos' },
+        { title: 'Details', description: 'Add a comment' },
+    ];
 
     const handlePickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -107,176 +118,208 @@ export default function CheckInScreen() {
         }
     };
 
-    const handleSubmit = async () => {
-        if (selectedWaitTime === null) {
+    const handleNext = () => {
+        if (currentStep === 0 && selectedWaitTime === null) {
             Alert.alert('Required', 'Please select a wait time');
             return;
         }
-        if (!selectedVibe) {
+        if (currentStep === 1 && !selectedVibe) {
             Alert.alert('Required', 'Please select a vibe');
             return;
         }
 
-        setIsSubmitting(true);
+        if (currentStep < steps.length - 1) {
+            setCurrentStep(currentStep + 1);
+        } else {
+            handleSubmit();
+        }
+    };
 
+    const handleBack = () => {
+        if (currentStep > 0) {
+            setCurrentStep(currentStep - 1);
+        } else {
+            router.back();
+        }
+    };
+
+    const handleSubmit = async () => {
+        setIsSubmitting(true);
         // TODO: Submit to Supabase
         await new Promise(resolve => setTimeout(resolve, 1500));
-
         setIsSubmitting(false);
-
-        // Navigate to deals page after successful check-in
         router.replace(`/deals/${barId}`);
+    };
+
+    const renderStepContent = () => {
+        switch (currentStep) {
+            case 0:
+                return (
+                    <View style={styles.stepContainer}>
+                        <View style={styles.optionsGrid}>
+                            {WAIT_TIME_OPTIONS.map((option, index) => (
+                                <TouchableOpacity
+                                    key={index}
+                                    style={[
+                                        styles.optionCard,
+                                        selectedWaitTime === index && styles.optionCardSelected,
+                                    ]}
+                                    onPress={() => setSelectedWaitTime(index)}
+                                >
+                                    <Text style={[
+                                        styles.optionText,
+                                        selectedWaitTime === index && styles.optionTextSelected,
+                                    ]}>
+                                        {option.label}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    </View>
+                );
+            case 1:
+                return (
+                    <View style={styles.stepContainer}>
+                        <View style={styles.vibeGrid}>
+                            {VIBE_EMOJIS.map((vibe) => (
+                                <TouchableOpacity
+                                    key={vibe.emoji}
+                                    style={[
+                                        styles.vibeCard,
+                                        selectedVibe === vibe.emoji && styles.vibeCardSelected,
+                                    ]}
+                                    onPress={() => setSelectedVibe(vibe.emoji)}
+                                >
+                                    <Text style={styles.vibeEmoji}>{vibe.emoji}</Text>
+                                    <Text style={[
+                                        styles.vibeLabel,
+                                        selectedVibe === vibe.emoji && styles.vibeLabelSelected,
+                                    ]}>
+                                        {vibe.label}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    </View>
+                );
+            case 2:
+                return (
+                    <View style={styles.stepContainer}>
+                        <Text style={styles.optionalText}>(optional)</Text>
+                        <View style={styles.mediaButtons}>
+                            <TouchableOpacity style={styles.mediaButton} onPress={handleTakePhoto}>
+                                <Ionicons name="camera" size={32} color={Colors.primary[400]} />
+                                <Text style={styles.mediaButtonText}>Camera</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.mediaButton} onPress={handlePickImage}>
+                                <Ionicons name="images" size={32} color={Colors.primary[400]} />
+                                <Text style={styles.mediaButtonText}>Gallery</Text>
+                            </TouchableOpacity>
+                        </View>
+                        {media.length > 0 && (
+                            <View style={styles.mediaPreviewContainer}>
+                                <Text style={styles.mediaCount}>{media.length} item(s) selected</Text>
+                            </View>
+                        )}
+                    </View>
+                );
+            case 3:
+                return (
+                    <View style={styles.stepContainer}>
+                        <Text style={styles.optionalText}>(optional)</Text>
+                        <TextInput
+                            style={styles.commentInput}
+                            placeholder="What's happening?"
+                            placeholderTextColor={Colors.text.muted}
+                            value={comment}
+                            onChangeText={setComment}
+                            multiline
+                            maxLength={280}
+                        />
+                        <Text style={styles.charCount}>{comment.length}/280</Text>
+
+                        <Text style={[styles.sectionTitle, { marginTop: Spacing.xl }]}>Who can see this?</Text>
+                        <View style={styles.visibilityOptions}>
+                            {(['public', 'friends', 'private'] as Visibility[]).map((option) => (
+                                <TouchableOpacity
+                                    key={option}
+                                    style={[
+                                        styles.visibilityOption,
+                                        visibility === option && styles.visibilityOptionSelected,
+                                    ]}
+                                    onPress={() => setVisibility(option)}
+                                >
+                                    <Ionicons
+                                        name={
+                                            option === 'public' ? 'globe' :
+                                                option === 'friends' ? 'people' : 'lock-closed'
+                                        }
+                                        size={20}
+                                        color={visibility === option ? Colors.primary[400] : Colors.text.secondary}
+                                    />
+                                    <Text style={[
+                                        styles.visibilityText,
+                                        visibility === option && styles.visibilityTextSelected,
+                                    ]}>
+                                        {option.charAt(0).toUpperCase() + option.slice(1)}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    </View>
+                );
+            default:
+                return null;
+        }
     };
 
     return (
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color={Colors.text.primary} />
+                <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+                    <Ionicons name={currentStep > 0 ? "arrow-back" : "close"} size={24} color={Colors.text.primary} />
                 </TouchableOpacity>
                 <View style={styles.headerInfo}>
                     <Text style={styles.headerTitle}>Check In</Text>
                     <Text style={styles.barName}>📍 {bar.name}</Text>
                 </View>
+                <View style={{ width: 40 }} />
             </View>
 
-            <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-                {/* Step 1: Wait Time */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>
-                        <Text style={styles.stepNumber}>1.</Text> How long was the wait?
-                    </Text>
-                    <View style={styles.optionsGrid}>
-                        {WAIT_TIME_OPTIONS.map((option, index) => (
-                            <TouchableOpacity
-                                key={index}
-                                style={[
-                                    styles.optionCard,
-                                    selectedWaitTime === index && styles.optionCardSelected,
-                                ]}
-                                onPress={() => setSelectedWaitTime(index)}
-                            >
-                                <Text style={[
-                                    styles.optionText,
-                                    selectedWaitTime === index && styles.optionTextSelected,
-                                ]}>
-                                    {option.label}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                </View>
-
-                {/* Step 2: Vibe */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>
-                        <Text style={styles.stepNumber}>2.</Text> What's the vibe?
-                    </Text>
-                    <View style={styles.vibeGrid}>
-                        {VIBE_EMOJIS.map((vibe) => (
-                            <TouchableOpacity
-                                key={vibe.emoji}
-                                style={[
-                                    styles.vibeCard,
-                                    selectedVibe === vibe.emoji && styles.vibeCardSelected,
-                                ]}
-                                onPress={() => setSelectedVibe(vibe.emoji)}
-                            >
-                                <Text style={styles.vibeEmoji}>{vibe.emoji}</Text>
-                                <Text style={[
-                                    styles.vibeLabel,
-                                    selectedVibe === vibe.emoji && styles.vibeLabelSelected,
-                                ]}>
-                                    {vibe.label}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                </View>
-
-                {/* Step 3: Comment (Optional) */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>
-                        <Text style={styles.stepNumber}>3.</Text> Add a comment <Text style={styles.optional}>(optional)</Text>
-                    </Text>
-                    <TextInput
-                        style={styles.commentInput}
-                        placeholder="What's happening?"
-                        placeholderTextColor={Colors.text.muted}
-                        value={comment}
-                        onChangeText={setComment}
-                        multiline
-                        maxLength={280}
+            {/* Progress Bar */}
+            <View style={styles.progressBarContainer}>
+                {steps.map((_, index) => (
+                    <View
+                        key={index}
+                        style={[
+                            styles.progressDot,
+                            index === currentStep && styles.progressDotActive,
+                            index < currentStep && styles.progressDotCompleted,
+                        ]}
                     />
-                    <Text style={styles.charCount}>{comment.length}/280</Text>
-                </View>
+                ))}
+            </View>
 
-                {/* Media */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Add photos/videos <Text style={styles.optional}>(optional)</Text></Text>
-                    <View style={styles.mediaButtons}>
-                        <TouchableOpacity style={styles.mediaButton} onPress={handleTakePhoto}>
-                            <Ionicons name="camera" size={24} color={Colors.primary[400]} />
-                            <Text style={styles.mediaButtonText}>Camera</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.mediaButton} onPress={handlePickImage}>
-                            <Ionicons name="images" size={24} color={Colors.primary[400]} />
-                            <Text style={styles.mediaButtonText}>Gallery</Text>
-                        </TouchableOpacity>
-                    </View>
-                    {media.length > 0 && (
-                        <Text style={styles.mediaCount}>{media.length} item(s) selected</Text>
-                    )}
-                </View>
+            {/* Content */}
+            <View style={styles.content}>
+                <Text style={styles.stepTitle}>{steps[currentStep].description}</Text>
+                {renderStepContent()}
+            </View>
 
-                {/* Visibility */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Who can see this?</Text>
-                    <View style={styles.visibilityOptions}>
-                        {(['public', 'friends', 'private'] as Visibility[]).map((option) => (
-                            <TouchableOpacity
-                                key={option}
-                                style={[
-                                    styles.visibilityOption,
-                                    visibility === option && styles.visibilityOptionSelected,
-                                ]}
-                                onPress={() => setVisibility(option)}
-                            >
-                                <Ionicons
-                                    name={
-                                        option === 'public' ? 'globe' :
-                                            option === 'friends' ? 'people' : 'lock-closed'
-                                    }
-                                    size={20}
-                                    color={visibility === option ? Colors.primary[400] : Colors.text.secondary}
-                                />
-                                <Text style={[
-                                    styles.visibilityText,
-                                    visibility === option && styles.visibilityTextSelected,
-                                ]}>
-                                    {option.charAt(0).toUpperCase() + option.slice(1)}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                </View>
-            </ScrollView>
-
-            {/* Submit Button */}
+            {/* Footer Navigation */}
             <View style={styles.footer}>
                 <TouchableOpacity
-                    style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
-                    onPress={handleSubmit}
+                    style={[styles.nextButton, isSubmitting && styles.submitButtonDisabled]}
+                    onPress={handleNext}
                     disabled={isSubmitting}
                 >
                     {isSubmitting ? (
                         <ActivityIndicator color={Colors.text.primary} />
                     ) : (
-                        <>
-                            <Text style={styles.submitText}>Check In</Text>
-                            <Ionicons name="checkmark-circle" size={22} color={Colors.text.primary} />
-                        </>
+                        <Text style={styles.nextButtonText}>
+                            {currentStep === steps.length - 1 ? 'Check In' : 'Next'}
+                        </Text>
                     )}
                 </TouchableOpacity>
             </View>
@@ -295,95 +338,119 @@ const styles = StyleSheet.create({
         paddingTop: 60,
         paddingHorizontal: Spacing.md,
         paddingBottom: Spacing.md,
-        backgroundColor: Colors.dark[800],
-        borderBottomWidth: 1,
-        borderBottomColor: Colors.dark[600],
+        backgroundColor: Colors.dark[900], // Seamless header
     },
     backButton: {
         padding: Spacing.sm,
-        marginRight: Spacing.sm,
+        width: 40,
     },
     headerInfo: {
         flex: 1,
+        alignItems: 'center',
     },
     headerTitle: {
-        fontSize: Typography.fontSize.lg,
-        fontWeight: Typography.fontWeight.bold,
+        fontSize: Typography.fontSize.base,
+        fontWeight: Typography.fontWeight.semibold,
         color: Colors.text.primary,
     },
     barName: {
-        fontSize: Typography.fontSize.sm,
+        fontSize: Typography.fontSize.xs,
         color: Colors.text.secondary,
         marginTop: 2,
     },
+    progressBarContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: Spacing.sm,
+        paddingBottom: Spacing.xl,
+    },
+    progressDot: {
+        width: 8,
+        height: 8,
+        borderRadius: BorderRadius.full,
+        backgroundColor: Colors.dark[700],
+    },
+    progressDotActive: {
+        backgroundColor: Colors.primary[500],
+        width: 24, // Elongated active dot
+    },
+    progressDotCompleted: {
+        backgroundColor: Colors.primary[800],
+    },
     content: {
         flex: 1,
-        padding: Spacing.md,
+        paddingHorizontal: Spacing.lg,
     },
-    section: {
+    stepTitle: {
+        fontSize: Typography.fontSize['2xl'],
+        fontWeight: Typography.fontWeight.bold,
+        color: Colors.text.primary,
+        marginBottom: Spacing.xl,
+        textAlign: 'center',
+    },
+    stepContainer: {
+        flex: 1,
+    },
+    optionalText: {
+        color: Colors.text.muted,
+        textAlign: 'center',
+        marginTop: -Spacing.lg,
         marginBottom: Spacing.xl,
     },
-    sectionTitle: {
-        fontSize: Typography.fontSize.lg,
-        fontWeight: Typography.fontWeight.semibold,
-        color: Colors.text.primary,
-        marginBottom: Spacing.md,
-    },
-    stepNumber: {
-        color: Colors.primary[400],
-    },
-    optional: {
-        color: Colors.text.muted,
-        fontWeight: Typography.fontWeight.normal,
-        fontSize: Typography.fontSize.sm,
-    },
+    // Option Cards (Wait Time)
     optionsGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: Spacing.sm,
+        justifyContent: 'center',
     },
     optionCard: {
-        paddingVertical: Spacing.sm,
+        width: '48%',
+        paddingVertical: Spacing.lg,
         paddingHorizontal: Spacing.md,
-        backgroundColor: Colors.dark[700],
+        backgroundColor: Colors.dark[800],
         borderRadius: BorderRadius.lg,
-        borderWidth: 2,
+        alignItems: 'center',
+        borderWidth: 1,
         borderColor: 'transparent',
     },
     optionCardSelected: {
+        backgroundColor: Colors.dark[700],
         borderColor: Colors.primary[500],
-        backgroundColor: Colors.primary[900],
     },
     optionText: {
         color: Colors.text.secondary,
-        fontSize: Typography.fontSize.sm,
+        fontSize: Typography.fontSize.base,
         fontWeight: Typography.fontWeight.medium,
     },
     optionTextSelected: {
-        color: Colors.primary[400],
+        color: Colors.text.primary,
+        fontWeight: Typography.fontWeight.bold,
     },
+    // Vibe Cards
     vibeGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: Spacing.sm,
+        justifyContent: 'center',
     },
     vibeCard: {
-        width: '23%',
+        width: '30%',
         aspectRatio: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: Colors.dark[700],
+        backgroundColor: Colors.dark[800],
         borderRadius: BorderRadius.lg,
-        borderWidth: 2,
+        borderWidth: 1,
         borderColor: 'transparent',
     },
     vibeCardSelected: {
+        backgroundColor: Colors.dark[700],
         borderColor: Colors.primary[500],
-        backgroundColor: Colors.primary[900],
     },
     vibeEmoji: {
-        fontSize: 28,
-        marginBottom: 4,
+        fontSize: 32,
+        marginBottom: Spacing.xs,
     },
     vibeLabel: {
         fontSize: Typography.fontSize.xs,
@@ -392,13 +459,41 @@ const styles = StyleSheet.create({
     vibeLabelSelected: {
         color: Colors.primary[400],
     },
+    // Media
+    mediaButtons: {
+        flexDirection: 'row',
+        gap: Spacing.md,
+        marginTop: Spacing.md,
+    },
+    mediaButton: {
+        flex: 1,
+        aspectRatio: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: Colors.dark[800],
+        borderRadius: BorderRadius.xl,
+        gap: Spacing.sm,
+    },
+    mediaButtonText: {
+        color: Colors.text.secondary,
+        fontSize: Typography.fontSize.sm,
+    },
+    mediaPreviewContainer: {
+        marginTop: Spacing.xl,
+        alignItems: 'center',
+    },
+    mediaCount: {
+        color: Colors.success,
+        fontSize: Typography.fontSize.sm,
+    },
+    // Comments & Visibility
     commentInput: {
-        backgroundColor: Colors.dark[700],
+        backgroundColor: Colors.dark[800],
         borderRadius: BorderRadius.lg,
         padding: Spacing.md,
         fontSize: Typography.fontSize.base,
         color: Colors.text.primary,
-        minHeight: 100,
+        minHeight: 120,
         textAlignVertical: 'top',
     },
     charCount: {
@@ -407,32 +502,11 @@ const styles = StyleSheet.create({
         fontSize: Typography.fontSize.xs,
         marginTop: Spacing.xs,
     },
-    mediaButtons: {
-        flexDirection: 'row',
-        gap: Spacing.md,
-    },
-    mediaButton: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: Spacing.sm,
-        backgroundColor: Colors.dark[700],
-        padding: Spacing.md,
-        borderRadius: BorderRadius.lg,
-        borderWidth: 1,
-        borderColor: Colors.dark[600],
-        borderStyle: 'dashed',
-    },
-    mediaButtonText: {
-        color: Colors.primary[400],
+    sectionTitle: {
         fontSize: Typography.fontSize.base,
-    },
-    mediaCount: {
-        color: Colors.success,
-        fontSize: Typography.fontSize.sm,
-        marginTop: Spacing.sm,
-        textAlign: 'center',
+        color: Colors.text.primary,
+        fontWeight: Typography.fontWeight.medium,
+        marginBottom: Spacing.md,
     },
     visibilityOptions: {
         flexDirection: 'row',
@@ -440,48 +514,42 @@ const styles = StyleSheet.create({
     },
     visibilityOption: {
         flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: Spacing.xs,
-        backgroundColor: Colors.dark[700],
         padding: Spacing.md,
+        backgroundColor: Colors.dark[800],
         borderRadius: BorderRadius.lg,
-        borderWidth: 2,
+        alignItems: 'center',
+        gap: Spacing.sm,
+        borderWidth: 1,
         borderColor: 'transparent',
     },
     visibilityOptionSelected: {
         borderColor: Colors.primary[500],
+        backgroundColor: Colors.dark[700],
     },
     visibilityText: {
         color: Colors.text.secondary,
-        fontSize: Typography.fontSize.sm,
+        fontSize: Typography.fontSize.xs,
     },
     visibilityTextSelected: {
         color: Colors.primary[400],
     },
+    // Footer
     footer: {
-        padding: Spacing.md,
-        paddingBottom: Spacing.xl,
-        backgroundColor: Colors.dark[800],
-        borderTopWidth: 1,
-        borderTopColor: Colors.dark[600],
+        padding: Spacing.xl,
+        paddingBottom: Spacing.xl + 20,
     },
-    submitButton: {
-        flexDirection: 'row',
+    nextButton: {
+        backgroundColor: Colors.primary[500], // Purple
+        paddingVertical: Spacing.md,
+        borderRadius: BorderRadius.full, // Pill shape
         alignItems: 'center',
-        justifyContent: 'center',
-        gap: Spacing.sm,
-        backgroundColor: Colors.primary[500],
-        padding: Spacing.md,
-        borderRadius: BorderRadius.lg,
+    },
+    nextButtonText: {
+        color: Colors.text.primary,
+        fontSize: Typography.fontSize.lg,
+        fontWeight: Typography.fontWeight.bold,
     },
     submitButtonDisabled: {
         opacity: 0.7,
-    },
-    submitText: {
-        color: Colors.text.primary,
-        fontSize: Typography.fontSize.lg,
-        fontWeight: Typography.fontWeight.semibold,
     },
 });
