@@ -25,6 +25,9 @@ export interface Bar {
     address: string;
     latitude: number;
     longitude: number;
+    vibe: string;
+    waitTime: string;
+    emoji: string;
     photos: string[];
     rating: number;
     price_level: 1 | 2 | 3 | 4; // $ to $$$$
@@ -32,6 +35,11 @@ export interface Bar {
     phone?: string;
     website?: string;
     created_at: string;
+    litScore?: number; // 0-100
+    energy?: 'chill' | 'active' | 'high' | 'insane';
+    coverFee?: string;
+    studentDiscount?: string;
+    communityPhotos?: string[];
 }
 
 export interface BarHours {
@@ -130,6 +138,14 @@ export interface LiveTraffic {
     current_checkins: number;
     trend: 'rising' | 'stable' | 'declining';
     updated_at: string;
+}
+
+// Lit Meter types
+export interface LitMetrics {
+    crowd_density: number; // 0-100
+    energy_level: number; // 0-100
+    dancing_activity: number; // 0-100
+    noise_level: number; // 0-100
 }
 
 // Auth types

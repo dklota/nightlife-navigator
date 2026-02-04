@@ -16,6 +16,8 @@ import * as Location from 'expo-location';
 import { router } from 'expo-router';
 
 import { Colors, Spacing, Typography, BorderRadius } from '../../src/constants/theme';
+import { LitMeter } from '../../components/LitMeter';
+import { BarDetails } from '../../components/BarDetails';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const COLLAPSED_HEIGHT = 220;
@@ -42,6 +44,14 @@ const MOCK_BARS = [
     projectedPeak: '11:30 PM',
     projectedWait: '45-60 min',
     projectedCrowd: 92,
+    litScore: 95,
+    energy: 'insane',
+    coverFee: '$5',
+    studentDiscount: 'Free cover with .edu',
+    communityPhotos: [
+      'https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=400&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=600&fit=crop'
+    ],
   },
   {
     id: '2',
@@ -99,6 +109,14 @@ const MOCK_BARS = [
     projectedPeak: '11:30 PM',
     projectedWait: '45-60 min',
     projectedCrowd: 95,
+    litScore: 98,
+    energy: 'insane',
+    coverFee: '$10',
+    studentDiscount: '$2 off drinks',
+    communityPhotos: [
+      'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=400&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1534353436294-0dbd4bdac845?w=400&h=600&fit=crop'
+    ],
   },
   {
     id: '5',
@@ -171,6 +189,8 @@ const MOCK_BARS = [
     projectedPeak: '11:00 PM',
     projectedWait: '20-25 min',
     projectedCrowd: 80,
+    litScore: 78,
+    energy: 'active',
   },
 ];
 
@@ -181,11 +201,6 @@ const MOCK_FRIENDS_LOCATIONS = [
   { id: 'f4', name: 'Taylor', avatar: 'https://i.pravatar.cc/150?u=taylor', latitude: 38.54380, longitude: -121.73750, status: 'At UOB' },
   { id: 'f5', name: 'Morgan', avatar: 'https://i.pravatar.cc/150?u=morgan', latitude: 38.54500, longitude: -121.73900, status: 'Getting food' },
 ];
-
-// Use single color for heatmap - intensity/opacity shows popularity
-const getHeatmapColor = () => {
-  return '#ff0080'; // Hot pink
-};
 
 // Get opacity multiplier based on popularity (higher = more opaque)
 const getHeatmapIntensity = (popularity: number) => {
@@ -252,6 +267,7 @@ const AvatarStack = ({ avatars, count, size = 18 }: { avatars: string[], count: 
 // Filter options
 const FILTERS = [
   { id: 'trending', label: '🔥 Trending', icon: 'flame-outline' },
+  { id: 'lit', label: '✨ Lit Meter', icon: 'flash' },
   { id: 'noWait', label: '⚡ No Wait', icon: 'flash-outline' },
   { id: 'openNow', label: '🟢 Open Now', icon: 'time-outline' },
   { id: 'deals', label: '🎁 Deals', icon: 'gift-outline' },
@@ -337,21 +353,28 @@ export default function ExploreScreen() {
   };
 
   // Filter and sort bars
-  const filteredBars = MOCK_BARS.filter(bar => {
-    // Search filter
-    const searchLower = searchQuery.toLowerCase();
-    const matchesSearch = bar.name.toLowerCase().includes(searchLower) ||
-      bar.vibe.toLowerCase().includes(searchLower);
+  const filteredBars = React.useMemo(() => {
+    return MOCK_BARS.filter(bar => {
+      // Search filter
+      const searchLower = searchQuery.toLowerCase();
+      const matchesSearch = bar.name.toLowerCase().includes(searchLower) ||
+        bar.vibe.toLowerCase().includes(searchLower);
 
-    if (!matchesSearch) return false;
+      if (!matchesSearch) return false;
 
-    // Category filters (AND logic)
-    if (activeFilters.includes('trending') && bar.popularity < 70) return false;
-    if (activeFilters.includes('noWait') && bar.waitTime !== 'No wait') return false;
-    if (activeFilters.includes('liveMusic') && !['🎸', '🎵'].includes(bar.emoji)) return false;
+      // Category filters (AND logic)
+      if (activeFilters.includes('trending') && bar.popularity < 70) return false;
+      if (activeFilters.includes('lit') && (bar.litScore || 0) < 80) return false;
+      if (activeFilters.includes('noWait') && bar.waitTime !== 'No wait') return false;
+      if (activeFilters.includes('liveMusic') && !['🎸', '🎵'].includes(bar.emoji)) return false;
 
-    return true;
-  });
+      // View mode filters
+      if (viewMode === 'friends' && bar.friendsHere === 0) return false;
+      // In 'bars' or 'all' mode, we show everything that matches other filters
+
+      return true;
+    });
+  }, [searchQuery, activeFilters, viewMode]);
   const sortedBars = [...filteredBars].sort((a, b) => b.popularity - a.popularity);
 
   return (
@@ -373,15 +396,13 @@ export default function ExploreScreen() {
         {(viewMode === 'all' || viewMode === 'bars') && filteredBars.map((bar) => {
           const color = getNeonColor(bar.popularity);
           return (
-            <React.Fragment key={`glow-${bar.id}`}>
-              {/* Outer glow */}
+            <React.Fragment key={`glow-group-${bar.id}`}>
               <Circle
                 center={{ latitude: bar.latitude, longitude: bar.longitude }}
                 radius={getGlowRadius(bar.popularity)}
                 fillColor={`${color}15`}
                 strokeColor="transparent"
               />
-              {/* Inner glow */}
               <Circle
                 center={{ latitude: bar.latitude, longitude: bar.longitude }}
                 radius={getGlowRadius(bar.popularity) * 0.4}
@@ -395,7 +416,7 @@ export default function ExploreScreen() {
         {/* Bar markers - Color indicates crowd level */}
         {(viewMode === 'all' || viewMode === 'bars') && filteredBars.map((bar) => (
           <Marker
-            key={bar.id}
+            key={`marker-${bar.id}`}
             coordinate={{ latitude: bar.latitude, longitude: bar.longitude }}
             onPress={() => setSelectedBar(bar)}
           >
@@ -508,9 +529,7 @@ export default function ExploreScreen() {
         ))}
       </ScrollView>
 
-      {/* Legend - Horizontal Pill Bar */}
-
-      {/* My Location Button */}
+      {/* View Mode Toggle */}
       <TouchableOpacity
         style={styles.locationButton}
         onPress={() => {
@@ -583,6 +602,9 @@ export default function ExploreScreen() {
                   </View>
                   <Text style={styles.barListWait}>{bar.waitTime}</Text>
                 </View>
+                {bar.litScore !== undefined && (
+                  <LitMeter score={bar.litScore} size="sm" label="Lit" />
+                )}
                 {/* Projection info */}
                 <View style={styles.projectionRow}>
                   <Text style={styles.projectionLabel}>📈 Peak: {bar.projectedPeak}</Text>
@@ -600,74 +622,15 @@ export default function ExploreScreen() {
         </ScrollView>
       </Animated.View>
 
-      {/* Selected Bar Card (appears when tapping marker) */}
-      {selectedBar && !isListExpanded && (
-        <View style={styles.barCard}>
-          <View style={styles.barCardHeader}>
-            <View style={styles.barInfo}>
-              <View style={styles.barTitleRow}>
-                <View
-                  style={[
-                    styles.barCardDot,
-                    { backgroundColor: getNeonColor(selectedBar.popularity) }
-                  ]}
-                />
-                <Text style={styles.barName}>{selectedBar.name}</Text>
-              </View>
-              <View style={styles.barMeta}>
-                <Text style={[styles.vibeText, { color: getNeonColor(selectedBar.popularity) }]}>
-                  {selectedBar.vibe}
-                </Text>
-                <Text style={styles.waitText}>• {selectedBar.waitTime}</Text>
-              </View>
-            </View>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setSelectedBar(null)}
-            >
-              <Ionicons name="close" size={22} color={Colors.text.secondary} />
-            </TouchableOpacity>
-          </View>
+      {/* Enhanced Bar Details View */}
+      <BarDetails
+        bar={selectedBar}
+        isVisible={!!selectedBar}
+        onClose={() => setSelectedBar(null)}
+      />
 
-          {/* Skip the Line - Only for packed bars */}
-          {selectedBar.popularity >= 80 && (
-            <TouchableOpacity
-              style={styles.skipLineCard}
-              onPress={() => {
-                alert('Skip the Line Purchased!\n\nShow this confirmation to the door staff.\n\nValid for tonight only at ' + selectedBar.name);
-              }}
-            >
-              <View style={styles.skipLineLeft}>
-                <View style={styles.skipLineBadge}>
-                  <Ionicons name="flash" size={16} color="#000" />
-                </View>
-                <View>
-                  <Text style={styles.skipLineTitle}>Skip the Line</Text>
-                  <Text style={styles.skipLineSubtitle}>Only 3 spots left tonight!</Text>
-                </View>
-              </View>
-              <View style={styles.skipLineRight}>
-                <Text style={styles.skipLinePrice}>$10</Text>
-                <Text style={styles.skipLinePer}>/night</Text>
-              </View>
-            </TouchableOpacity>
-          )}
-
-          <View style={styles.barActions}>
-            <TouchableOpacity style={styles.actionButton}>
-              <Ionicons name="navigate" size={18} color={Colors.neon.cyan} />
-              <Text style={[styles.actionText, { color: Colors.neon.cyan }]}>Directions</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.checkInButton, { backgroundColor: getNeonColor(selectedBar.popularity) }]}
-              onPress={() => router.push(`/checkin/${selectedBar.id}`)}
-            >
-              <Text style={styles.checkInText}>Check In</Text>
-              <Ionicons name="arrow-forward" size={16} color="#fff" />
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
+      {/* Selected Bar Card (HIDDEN - Replaced by BarDetails) */}
+      {/* {selectedBar && !isListExpanded && ( ... )} */}
     </View>
   );
 }
@@ -839,42 +802,6 @@ const styles = StyleSheet.create({
   },
   filterChipTextActive: {
     color: Colors.text.primary,
-  },
-  legend: {
-    position: 'absolute',
-    top: Spacing.xl + 110,
-    left: Spacing.md,
-    right: Spacing.md,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: `${Colors.dark[800]}ee`,
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-    borderRadius: BorderRadius.full,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  legendDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 4,
-  },
-  legendText: {
-    color: Colors.text.secondary,
-    fontSize: Typography.fontSize.xs,
-    fontWeight: Typography.fontWeight.medium,
   },
   locationButton: {
     position: 'absolute',

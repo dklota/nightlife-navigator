@@ -71,6 +71,7 @@ export default function CheckInScreen() {
     const [currentStep, setCurrentStep] = useState(0);
     const [selectedWaitTime, setSelectedWaitTime] = useState<number | null>(null);
     const [selectedVibe, setSelectedVibe] = useState<string | null>(null);
+    const [energyLevel, setEnergyLevel] = useState<number>(50); // 0-100
     const [comment, setComment] = useState('');
     const [visibility, setVisibility] = useState<Visibility>('friends');
     const [media, setMedia] = useState<string[]>([]);
@@ -79,6 +80,7 @@ export default function CheckInScreen() {
     const steps = [
         { title: 'Wait Time', description: 'How long was the wait?' },
         { title: 'Vibe', description: "What's the vibe?" },
+        { title: 'Energy', description: "How lit is it?" },
         { title: 'Media', description: 'Add photos/videos' },
         { title: 'Details', description: 'Add a comment' },
     ];
@@ -205,6 +207,38 @@ export default function CheckInScreen() {
             case 2:
                 return (
                     <View style={styles.stepContainer}>
+                        <View style={styles.energySliderContainer}>
+                            <Text style={[styles.energyValue, { color: energyLevel >= 80 ? Colors.traffic.veryHigh : Colors.primary[400] }]}>
+                                {energyLevel >= 80 ? '🔥 INSANE' : energyLevel >= 50 ? '⚡ HIGH' : '😎 CHILL'}
+                            </Text>
+                            <View style={styles.energyOptions}>
+                                {[20, 50, 80, 100].map((level) => (
+                                    <TouchableOpacity
+                                        key={level}
+                                        style={[
+                                            styles.energyCard,
+                                            energyLevel === level && styles.energyCardSelected,
+                                        ]}
+                                        onPress={() => setEnergyLevel(level)}
+                                    >
+                                        <Text style={[
+                                            styles.energyLabel,
+                                            energyLevel === level && styles.energyLabelSelected,
+                                        ]}>
+                                            {level === 20 ? 'Chill' : level === 50 ? 'Active' : level === 80 ? 'High' : 'Insane'}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                            <Text style={styles.energySubtext}>
+                                Reporting high energy updates the Lit Meter for everyone!
+                            </Text>
+                        </View>
+                    </View>
+                );
+            case 3:
+                return (
+                    <View style={styles.stepContainer}>
                         <Text style={styles.optionalText}>(optional)</Text>
                         <View style={styles.mediaButtons}>
                             <TouchableOpacity style={styles.mediaButton} onPress={handleTakePhoto}>
@@ -223,7 +257,7 @@ export default function CheckInScreen() {
                         )}
                     </View>
                 );
-            case 3:
+            case 4:
                 return (
                     <View style={styles.stepContainer}>
                         <Text style={styles.optionalText}>(optional)</Text>
@@ -551,5 +585,48 @@ const styles = StyleSheet.create({
     },
     submitButtonDisabled: {
         opacity: 0.7,
+    },
+    // Energy Styles
+    energySliderContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: Spacing.xl,
+    },
+    energyValue: {
+        fontSize: Typography.fontSize['3xl'],
+        fontWeight: Typography.fontWeight.bold,
+        letterSpacing: 1,
+    },
+    energyOptions: {
+        width: '100%',
+        gap: Spacing.md,
+    },
+    energyCard: {
+        paddingVertical: Spacing.lg,
+        backgroundColor: Colors.dark[800],
+        borderRadius: BorderRadius.lg,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'transparent',
+    },
+    energyCardSelected: {
+        backgroundColor: Colors.dark[700],
+        borderColor: Colors.primary[500],
+    },
+    energyLabel: {
+        color: Colors.text.secondary,
+        fontSize: Typography.fontSize.base,
+        fontWeight: Typography.fontWeight.medium,
+    },
+    energyLabelSelected: {
+        color: Colors.text.primary,
+        fontWeight: Typography.fontWeight.bold,
+    },
+    energySubtext: {
+        color: Colors.text.muted,
+        fontSize: Typography.fontSize.xs,
+        textAlign: 'center',
+        paddingHorizontal: Spacing.xl,
     },
 });
