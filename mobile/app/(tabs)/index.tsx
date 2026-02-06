@@ -1059,52 +1059,5 @@ const styles = StyleSheet.create({
   checkInText: {
     color: '#fff',
     fontSize: Typography.fontSize.sm,
-    fontWeight: Typography.fontWeight.bold,
-  },
-  // Skip the Line styles
-  skipLineCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: `${Colors.neon.green}10`, // Very subtle green bg
-    borderWidth: 1,
-    borderColor: `${Colors.neon.green}40`,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.md,
-    marginTop: Spacing.lg,
-  },
-  skipLineLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-  },
-  skipLineBadge: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: `${Colors.neon.green}20`,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  skipLineTitle: {
-    fontSize: Typography.fontSize.base,
-    fontWeight: Typography.fontWeight.bold,
-    color: Colors.neon.green,
-  },
-  skipLineSubtitle: {
-    fontSize: Typography.fontSize.xs,
-    color: Colors.text.secondary,
-  },
-  skipLineRight: {
-    alignItems: 'flex-end',
-  },
-  skipLinePrice: {
-    fontSize: Typography.fontSize.xl,
-    fontWeight: Typography.fontWeight.bold,
-    color: Colors.text.primary,
-  },
-  skipLinePer: {
-    fontSize: Typography.fontSize.xs,
-    color: Colors.text.muted,
   },
 });

@@ -21,6 +21,7 @@ const BAR_DEALS: Record<string, { name: string; deals: Deal[] }> = {
             { id: '1', title: '$3 Draft Beers', description: 'Any draft on tap', originalPrice: '$7', dealPrice: '$3', emoji: '🍺', expiresIn: '2 hours' },
             { id: '2', title: '2-for-1 Shots', description: 'Well liquor shots', originalPrice: '$8', dealPrice: '$4', emoji: '🥃', expiresIn: '3 hours' },
             { id: '3', title: 'Free Appetizer', description: 'With purchase of 2 drinks', originalPrice: '$12', dealPrice: 'FREE', emoji: '🍟', expiresIn: '1 hour' },
+            { id: 'skip-1', title: 'Skip the Line Pass', description: 'Priority entry tonight', originalPrice: '$25', dealPrice: '$15', emoji: '⚡', expiresIn: 'All Night' },
         ],
     },
     '2': {
@@ -44,6 +45,7 @@ const BAR_DEALS: Record<string, { name: string; deals: Deal[] }> = {
             { id: '1', title: 'Tiki Tuesday Special', description: 'Mai Tai or Piña Colada', originalPrice: '$15', dealPrice: '$7', emoji: '🌴', expiresIn: '2 hours' },
             { id: '2', title: 'Rum Bucket', description: '5 rum shots in a bucket', originalPrice: '$25', dealPrice: '$15', emoji: '🪣', expiresIn: '3 hours' },
             { id: '3', title: 'Fire Dancer Shot', description: 'Signature flaming shot', originalPrice: '$12', dealPrice: '$6', emoji: '🔥', expiresIn: '4 hours' },
+            { id: 'skip-4', title: 'Skip the Line Pass', description: 'Priority entry tonight', originalPrice: '$25', dealPrice: '$15', emoji: '⚡', expiresIn: 'All Night' },
         ],
     },
     '5': {

@@ -115,6 +115,29 @@ export const BarDetails: React.FC<BarDetailsProps> = ({ bar, isVisible, onClose 
                                 <Text style={[styles.buttonText, { color: Colors.neon.cyan }]}>Get Directions</Text>
                             </TouchableOpacity>
                         </View>
+
+                        {/* Skip the Line Pass - Shows if wait is significant */}
+                        {bar.waitTime && bar.waitTime !== 'No wait' && bar.waitTime !== '5-10 min' && (
+                            <View style={styles.skipLineCard}>
+                                <View style={styles.skipLineLeft}>
+                                    <View style={styles.skipLineBadge}>
+                                        <Ionicons name="flash" size={20} color={Colors.neon.green} />
+                                    </View>
+                                    <View>
+                                        <Text style={styles.skipLineTitle}>Skip the Line</Text>
+                                        <Text style={styles.skipLineSubtitle}>Instant entry for tonight ⚡️</Text>
+                                    </View>
+                                </View>
+                                <View style={styles.skipLineRight}>
+                                    <TouchableOpacity
+                                        style={styles.getPassButton}
+                                        onPress={() => alert('Purchase flow coming soon!')}
+                                    >
+                                        <Text style={styles.getPassText}>$15</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        )}
                     </ScrollView>
                 </View>
             </View>
@@ -267,5 +290,53 @@ const styles = StyleSheet.create({
         fontSize: Typography.fontSize.base,
         fontWeight: Typography.fontWeight.bold,
         color: Colors.text.primary,
+    },
+    // Skip the Line styles
+    skipLineCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: `${Colors.neon.green}10`,
+        borderWidth: 1,
+        borderColor: `${Colors.neon.green}40`,
+        borderRadius: BorderRadius.xl,
+        padding: Spacing.md,
+        marginBottom: Spacing.xl,
+    },
+    skipLineLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: Spacing.md,
+    },
+    skipLineBadge: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: `${Colors.neon.green}20`,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    skipLineTitle: {
+        fontSize: Typography.fontSize.base,
+        fontWeight: Typography.fontWeight.bold,
+        color: Colors.neon.green,
+    },
+    skipLineSubtitle: {
+        fontSize: Typography.fontSize.xs,
+        color: Colors.text.secondary,
+    },
+    skipLineRight: {
+        alignItems: 'flex-end',
+    },
+    getPassButton: {
+        backgroundColor: Colors.neon.green,
+        paddingHorizontal: Spacing.md,
+        paddingVertical: 8,
+        borderRadius: BorderRadius.lg,
+    },
+    getPassText: {
+        color: Colors.dark[900],
+        fontWeight: Typography.fontWeight.bold,
+        fontSize: Typography.fontSize.sm,
     },
 });
