@@ -284,6 +284,11 @@ body {
   position: relative;
   box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
   z-index: 5;
+  cursor: default !important;
+}
+
+.phone-mockup * {
+  cursor: default !important;
 }
 
 /* High-Fid Phone Mockup */
@@ -324,7 +329,7 @@ body {
 .nav-item {
   font-size: 1.1rem;
   opacity: 0.5;
-  cursor: pointer;
+  cursor: default !important;
 }
 
 .nav-item.active {
@@ -723,7 +728,7 @@ body {
   font-size: 0.85rem;
   letter-spacing: 1px;
   box-shadow: 0 10px 30px rgba(128, 39, 186, 0.4);
-  cursor: pointer;
+  cursor: default !important;
   transition: transform 0.2s;
 }
 
