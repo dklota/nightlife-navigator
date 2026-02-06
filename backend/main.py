@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = FastAPI(title="Nightlife Navigator API")
+app = FastAPI(title="WTM API")
 
 # Configure CORS for mobile/web frontend
 app.add_middleware(
@@ -19,7 +19,7 @@ app.add_middleware(
 @app.get("/")
 async def root():
     return {
-        "message": "Welcome to the Nightlife Navigator AI Backend",
+        "message": "Welcome to the WTM AI Backend",
         "status": "online",
         "environment": os.getenv("ENVIRONMENT", "development")
     }

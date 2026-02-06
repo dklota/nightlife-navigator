@@ -1,6 +1,6 @@
-# Nightlife Navigator: Backend
+# WTM: Backend
 
-This directory contains the AI-powered backend for Nightlife Navigator, responsible for machine learning, data processing, and external API integrations.
+This directory contains the AI-powered backend for WTM (What's the Move), responsible for machine learning, data processing, and external API integrations.
 
 ## 🚀 Vision & Objectives
 *Replace this section with what you want to achieve!*

@@ -1,4 +1,4 @@
-# What's the Move
+# WTM (What's the Move)
 
 A React Native mobile app for tracking bar traffic, checking in, and discovering exclusive deals with friends.
 
