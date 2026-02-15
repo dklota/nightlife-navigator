@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+:root {
+  --background: #000000;
+  --foreground: #ffffff;
+  --primary: #8027BA;
+  --primary-glow: rgba(128, 39, 186, 0.4);
+  --secondary: #121212;
+  --text-secondary: #B3B3B3;
+  --accent-green: #1ed760;
+  --accent-pink: #d946ef;
+  --card-border: rgba(255, 255, 255, 0.08);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent-green: var(--accent-green);
+  --color-accent-pink: var(--accent-pink);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Glassmorphism Utilities */
+.glass {
+  background: rgba(18, 18, 18, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--card-border);
+}
+
+.glass-accent {
+  background: rgba(128, 39, 186, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(128, 39, 186, 0.2);
+}
+
+.neon-border {
+  border: 1px solid var(--primary);
+  box-shadow: 0 0 15px var(--primary-glow);
+}
+
+.text-gradient {
+  background: linear-gradient(to right, #ffffff, var(--primary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

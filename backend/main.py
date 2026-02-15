@@ -10,7 +10,12 @@ app = FastAPI(title="WTM API")
 # Configure CORS for mobile/web frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # In production, replace with specific origins
+    allow_origins=[
+        "*", 
+        "http://localhost:3000", 
+        "http://localhost:3001",
+        "http://localhost:3002"
+    ], # Added local dashboard origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
