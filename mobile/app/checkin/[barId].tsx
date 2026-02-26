@@ -14,6 +14,8 @@ import { router, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Colors, Spacing, Typography, BorderRadius } from '../../src/constants/theme';
 import { VIBE_EMOJIS, WAIT_TIME_OPTIONS } from '../../src/types';
+import { submitCheckin } from '../../src/services/api';
+import { useAuthStore } from '../../src/stores/authStore';
 
 const { width } = Dimensions.get('window');
 
@@ -66,6 +68,7 @@ type Visibility = 'public' | 'friends' | 'private';
 export default function CheckInScreen() {
     const { barId } = useLocalSearchParams<{ barId: string }>();
     const bar = MOCK_BARS.find(b => b.id === barId) || MOCK_BARS[0];
+    const { user } = useAuthStore();
 
     // State
     const [currentStep, setCurrentStep] = useState(0);
@@ -147,8 +150,24 @@ export default function CheckInScreen() {
 
     const handleSubmit = async () => {
         setIsSubmitting(true);
-        // TODO: Submit to Supabase
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        try {
+            const waitOption = selectedWaitTime !== null
+                ? WAIT_TIME_OPTIONS[selectedWaitTime]
+                : WAIT_TIME_OPTIONS[0];
+            await submitCheckin({
+                bar_id: barId,
+                user_id: user?.id,
+                wait_time_min: waitOption.min,
+                wait_time_max: waitOption.max === 999 ? 90 : waitOption.max,
+                energy_level: energyLevel,
+                vibe_emoji: selectedVibe ?? undefined,
+                comment: comment || undefined,
+                visibility,
+            });
+        } catch (e) {
+            // Don't block the success screen on a network hiccup
+            console.warn('Check-in submission failed:', e);
+        }
         setIsSubmitting(false);
         router.replace(`/deals/${barId}`);
     };

@@ -9,8 +9,9 @@ import {
   Dimensions,
   Image,
   TextInput,
+  ActivityIndicator,
 } from 'react-native';
-import MapView, { Marker, Circle, PROVIDER_GOOGLE } from 'react-native-maps';
+import { Map, MapMarker, MapCircle, PROVIDER_GOOGLE } from '../../components/Map';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { router } from 'expo-router';
@@ -18,181 +19,11 @@ import { router } from 'expo-router';
 import { Colors, Spacing, Typography, BorderRadius } from '../../src/constants/theme';
 import { LitMeter } from '../../components/LitMeter';
 import { BarDetails } from '../../components/BarDetails';
+import { fetchBars, DisplayBar, CITIES, CityKey, CITY_REGIONS } from '../../src/services/api';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const COLLAPSED_HEIGHT = 220;
 const EXPANDED_HEIGHT = SCREEN_HEIGHT * 0.65;
-
-// Davis bars with approximate coordinates
-const MOCK_BARS = [
-  {
-    id: '1',
-    name: 'G St Wunderbar',
-    latitude: 38.54423,
-    longitude: -121.74072,
-    popularity: 85,
-    waitTime: '30-45 min',
-    vibe: 'Packed',
-    emoji: '🍺',
-    image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=400&fit=crop',
-    friendsHere: 2,
-    friendAvatars: [
-      'https://i.pravatar.cc/150?u=alex',
-      'https://i.pravatar.cc/150?u=sam'
-    ],
-    friendNames: ['Alex', 'Sam'],
-    projectedPeak: '11:30 PM',
-    projectedWait: '45-60 min',
-    projectedCrowd: 92,
-    litScore: 95,
-    energy: 'insane',
-    coverFee: '$5',
-    studentDiscount: 'Free cover with .edu',
-    communityPhotos: [
-      'https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=400&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=600&fit=crop'
-    ],
-  },
-  {
-    id: '2',
-    name: 'Wiki Bar',
-    latitude: 38.54380,
-    longitude: -121.73980,
-    popularity: 50,
-    waitTime: '5-10 min',
-    vibe: 'Moderate',
-    emoji: '🍹',
-    image: 'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=400&h=400&fit=crop',
-    friendsHere: 0,
-    friendAvatars: [],
-    friendNames: [],
-    projectedPeak: '10:30 PM',
-    projectedWait: '10-15 min',
-    projectedCrowd: 68,
-  },
-  {
-    id: '3',
-    name: 'Parkside Sports Bar & Grill',
-    latitude: 38.54440,
-    longitude: -121.74120,
-    popularity: 70,
-    waitTime: '15-20 min',
-    vibe: 'Busy',
-    emoji: '🏈',
-    image: 'https://images.unsplash.com/photo-1574391884720-bbc3740c59d1?w=400&h=400&fit=crop',
-    friendsHere: 1,
-    friendAvatars: ['https://i.pravatar.cc/150?u=jordan'],
-    friendNames: ['Jordan'],
-    projectedPeak: '11:00 PM',
-    projectedWait: '20-30 min',
-    projectedCrowd: 75,
-  },
-  {
-    id: '4',
-    name: 'Shipwrecked Tiki Bar',
-    latitude: 38.54410,
-    longitude: -121.74055,
-    popularity: 90,
-    waitTime: '30-45 min',
-    vibe: 'Packed',
-    emoji: '🌴',
-    image: 'https://images.unsplash.com/photo-1516997121675-4c2d1684aa3e?w=400&h=400&fit=crop',
-    friendsHere: 5,
-    friendAvatars: [
-      'https://i.pravatar.cc/150?u=taylor',
-      'https://i.pravatar.cc/150?u=morgan',
-      'https://i.pravatar.cc/150?u=casey',
-      'https://i.pravatar.cc/150?u=riley',
-      'https://i.pravatar.cc/150?u=skylar'
-    ],
-    friendNames: ['Taylor', 'Morgan', 'Casey', 'Riley', 'Skylar'],
-    projectedPeak: '11:30 PM',
-    projectedWait: '45-60 min',
-    projectedCrowd: 95,
-    litScore: 98,
-    energy: 'insane',
-    coverFee: '$10',
-    studentDiscount: '$2 off drinks',
-    communityPhotos: [
-      'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=400&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1534353436294-0dbd4bdac845?w=400&h=600&fit=crop'
-    ],
-  },
-  {
-    id: '5',
-    name: 'University of Beer',
-    latitude: 38.54350,
-    longitude: -121.73850,
-    popularity: 50,
-    waitTime: '5-10 min',
-    vibe: 'Moderate',
-    emoji: '🍻',
-    image: 'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=400&h=400&fit=crop',
-    friendsHere: 3,
-    friendAvatars: [
-      'https://i.pravatar.cc/150?u=jamie',
-      'https://i.pravatar.cc/150?u=quinn',
-      'https://i.pravatar.cc/150?u=charlie'
-    ],
-    friendNames: ['Jamie', 'Quinn', 'Charlie'],
-    projectedPeak: '11:00 PM',
-    projectedWait: '15-25 min',
-    projectedCrowd: 65,
-  },
-  {
-    id: '6',
-    name: "Bull 'N Mouth",
-    latitude: 38.54395,
-    longitude: -121.73920,
-    popularity: 55,
-    waitTime: '5 min',
-    vibe: 'Moderate',
-    emoji: '🎸',
-    image: 'https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?w=400&h=400&fit=crop',
-    friendsHere: 0,
-    friendAvatars: [],
-    friendNames: [],
-    projectedPeak: '10:00 PM',
-    projectedWait: '5-10 min',
-    projectedCrowd: 62,
-  },
-  {
-    id: '7',
-    name: "Sophia's Thai Bar & Kitchen",
-    latitude: 38.54365,
-    longitude: -121.73895,
-    popularity: 30,
-    waitTime: 'No wait',
-    vibe: 'Chill',
-    emoji: '🍜',
-    image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=400&fit=crop',
-    friendsHere: 0,
-    friendAvatars: [],
-    friendNames: [],
-    projectedPeak: '8:30 PM',
-    projectedWait: 'No wait',
-    projectedCrowd: 45,
-  },
-  {
-    id: '8',
-    name: "Woodstock's Pizza Davis",
-    latitude: 38.54435,
-    longitude: -121.74085,
-    popularity: 75,
-    waitTime: '10-15 min',
-    vibe: 'Busy',
-    emoji: '🍕',
-    image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=400&fit=crop',
-    friendsHere: 1,
-    friendAvatars: ['https://i.pravatar.cc/150?u=avery'],
-    friendNames: ['Avery'],
-    projectedPeak: '11:00 PM',
-    projectedWait: '20-25 min',
-    projectedCrowd: 80,
-    litScore: 78,
-    energy: 'active',
-  },
-];
 
 const MOCK_FRIENDS_LOCATIONS = [
   { id: 'f1', name: 'Alex', avatar: 'https://i.pravatar.cc/150?u=alex', latitude: 38.54450, longitude: -121.74020, status: 'At G St' },
@@ -276,12 +107,15 @@ const FILTERS = [
 
 export default function ExploreScreen() {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
-  const [selectedBar, setSelectedBar] = useState<typeof MOCK_BARS[0] | null>(null);
+  const [selectedCity, setSelectedCity] = useState<CityKey>('Davis, CA');
+  const [bars, setBars] = useState<DisplayBar[]>([]);
+  const [barsLoading, setBarsLoading] = useState(true);
+  const [selectedBar, setSelectedBar] = useState<DisplayBar | null>(null);
   const [isListExpanded, setIsListExpanded] = useState(false);
   const [viewMode, setViewMode] = useState<'all' | 'bars' | 'friends'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  const mapRef = useRef<MapView>(null);
+  const mapRef = useRef<any>(null);
 
   const listHeight = useRef(new Animated.Value(COLLAPSED_HEIGHT)).current;
 
@@ -296,13 +130,22 @@ export default function ExploreScreen() {
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        return;
-      }
+      if (status !== 'granted') return;
       let loc = await Location.getCurrentPositionAsync({});
       setLocation(loc);
     })();
   }, []);
+
+  useEffect(() => {
+    setBarsLoading(true);
+    fetchBars(selectedCity)
+      .then(setBars)
+      .catch(err => console.warn('Failed to fetch bars:', err))
+      .finally(() => setBarsLoading(false));
+
+    // Animate map to selected city
+    mapRef.current?.animateToRegion(CITY_REGIONS[selectedCity], 600);
+  }, [selectedCity]);
 
   const initialRegion = {
     latitude: 38.54400,
@@ -335,7 +178,7 @@ export default function ExploreScreen() {
     setIsListExpanded(!isListExpanded);
   };
 
-  const selectBarFromList = (bar: typeof MOCK_BARS[0]) => {
+  const selectBarFromList = (bar: DisplayBar) => {
     setSelectedBar(bar);
     // Collapse list and animate to bar location
     Animated.spring(listHeight, {
@@ -354,7 +197,7 @@ export default function ExploreScreen() {
 
   // Filter and sort bars
   const filteredBars = React.useMemo(() => {
-    return MOCK_BARS.filter(bar => {
+    return bars.filter(bar => {
       // Search filter
       const searchLower = searchQuery.toLowerCase();
       const matchesSearch = bar.name.toLowerCase().includes(searchLower) ||
@@ -374,12 +217,12 @@ export default function ExploreScreen() {
 
       return true;
     });
-  }, [searchQuery, activeFilters, viewMode]);
+  }, [bars, searchQuery, activeFilters, viewMode]);
   const sortedBars = [...filteredBars].sort((a, b) => b.popularity - a.popularity);
 
   return (
     <View style={styles.container}>
-      <MapView
+      <Map
         ref={mapRef}
         style={styles.map}
         provider={PROVIDER_GOOGLE}
@@ -397,13 +240,13 @@ export default function ExploreScreen() {
           const color = getNeonColor(bar.popularity);
           return (
             <React.Fragment key={`glow-group-${bar.id}`}>
-              <Circle
+              <MapCircle
                 center={{ latitude: bar.latitude, longitude: bar.longitude }}
                 radius={getGlowRadius(bar.popularity)}
                 fillColor={`${color}15`}
                 strokeColor="transparent"
               />
-              <Circle
+              <MapCircle
                 center={{ latitude: bar.latitude, longitude: bar.longitude }}
                 radius={getGlowRadius(bar.popularity) * 0.4}
                 fillColor={`${color}25`}
@@ -412,10 +255,9 @@ export default function ExploreScreen() {
             </React.Fragment>
           );
         })}
-
         {/* Bar markers - Color indicates crowd level */}
         {(viewMode === 'all' || viewMode === 'bars') && filteredBars.map((bar) => (
-          <Marker
+          <MapMarker
             key={`marker-${bar.id}`}
             coordinate={{ latitude: bar.latitude, longitude: bar.longitude }}
             onPress={() => setSelectedBar(bar)}
@@ -430,12 +272,12 @@ export default function ExploreScreen() {
                 ]}
               />
             </View>
-          </Marker>
+          </MapMarker>
         ))}
 
         {/* Individual Friend markers */}
         {(viewMode === 'all' || viewMode === 'friends') && MOCK_FRIENDS_LOCATIONS.map((friend) => (
-          <Marker
+          <MapMarker
             key={friend.id}
             coordinate={{ latitude: friend.latitude, longitude: friend.longitude }}
             title={friend.name}
@@ -447,42 +289,27 @@ export default function ExploreScreen() {
                 <Text style={styles.friendMarkerText}>{friend.name}</Text>
               </View>
             </View>
-          </Marker>
+          </MapMarker>
         ))}
-      </MapView>
+      </Map>
 
-      {/* View Mode Toggle */}
-      <View style={styles.viewToggleContainer}>
-        <TouchableOpacity
-          style={[styles.viewToggleButton, viewMode === 'all' && styles.viewToggleButtonActive]}
-          onPress={() => {
-            setViewMode('all');
-            setSearchQuery('');
-            setActiveFilters([]);
-          }}
-        >
-          <Text style={[styles.viewToggleText, viewMode === 'all' && styles.viewToggleTextActive]}>All</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.viewToggleButton, viewMode === 'bars' && styles.viewToggleButtonActive]}
-          onPress={() => {
-            setViewMode('bars');
-            setSearchQuery('');
-            setActiveFilters([]);
-          }}
-        >
-          <Text style={[styles.viewToggleText, viewMode === 'bars' && styles.viewToggleTextActive]}>Bars</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.viewToggleButton, viewMode === 'friends' && styles.viewToggleButtonActive]}
-          onPress={() => {
-            setViewMode('friends');
-            setSearchQuery('');
-            setActiveFilters([]);
-          }}
-        >
-          <Text style={[styles.viewToggleText, viewMode === 'friends' && styles.viewToggleTextActive]}>Friends</Text>
-        </TouchableOpacity>
+      {/* City Selector */}
+      <View style={styles.citySelectorContainer}>
+        {CITIES.map(city => {
+          const label = city.replace(', CA', '');
+          const isActive = selectedCity === city;
+          return (
+            <TouchableOpacity
+              key={city}
+              style={[styles.cityTab, isActive && styles.cityTabActive]}
+              onPress={() => setSelectedCity(city)}
+            >
+              <Text style={[styles.cityTabText, isActive && styles.cityTabTextActive]}>
+                {label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
 
       {/* Search Bar */}
@@ -503,33 +330,46 @@ export default function ExploreScreen() {
         )}
       </View>
 
-      {/* Filter Chips */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.filterContainer}
-        contentContainerStyle={styles.filterContent}
-      >
-        {FILTERS.map((filter) => (
-          <TouchableOpacity
-            key={filter.id}
-            style={[
-              styles.filterChip,
-              activeFilters.includes(filter.id) && styles.filterChipActive
-            ]}
-            onPress={() => toggleFilter(filter.id)}
-          >
-            <Text style={[
-              styles.filterChipText,
-              activeFilters.includes(filter.id) && styles.filterChipTextActive
-            ]}>
-              {filter.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      {/* View Mode Toggle — hidden when list is expanded */}
+      {!isListExpanded && (
+        <View style={styles.viewToggleContainer}>
+          {(['all', 'bars', 'friends'] as const).map(mode => (
+            <TouchableOpacity
+              key={mode}
+              style={[styles.viewToggleButton, viewMode === mode && styles.viewToggleButtonActive]}
+              onPress={() => { setViewMode(mode); setSearchQuery(''); setActiveFilters([]); }}
+            >
+              <Text style={[styles.viewToggleText, viewMode === mode && styles.viewToggleTextActive]}>
+                {mode.charAt(0).toUpperCase() + mode.slice(1)}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
 
-      {/* View Mode Toggle */}
+      {/* Filter Chips — hidden when list is expanded */}
+      {!isListExpanded && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.filterContainer}
+          contentContainerStyle={styles.filterContent}
+        >
+          {FILTERS.map((filter) => (
+            <TouchableOpacity
+              key={filter.id}
+              style={[styles.filterChip, activeFilters.includes(filter.id) && styles.filterChipActive]}
+              onPress={() => toggleFilter(filter.id)}
+            >
+              <Text style={[styles.filterChipText, activeFilters.includes(filter.id) && styles.filterChipTextActive]}>
+                {filter.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
+
+      {/* Location button */}
       <TouchableOpacity
         style={styles.locationButton}
         onPress={() => {
@@ -552,7 +392,11 @@ export default function ExploreScreen() {
         <TouchableOpacity style={styles.dragHandle} onPress={toggleList}>
           <View style={styles.dragIndicator} />
           <Text style={styles.listTitle}>
-            {isListExpanded ? 'Nearby Bars' : `${filteredBars.length} bars nearby`}
+            {barsLoading
+              ? 'Loading bars...'
+              : isListExpanded
+                ? 'Nearby Bars'
+                : `${filteredBars.length} bars nearby`}
           </Text>
           <Ionicons
             name={isListExpanded ? 'chevron-down' : 'chevron-up'}
@@ -679,9 +523,42 @@ const styles = StyleSheet.create({
     fontSize: 8,
     fontFamily: Typography.fontFamily.sansBold,
   },
+  citySelectorContainer: {
+    position: 'absolute',
+    top: 56,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    backgroundColor: Colors.dark[800],
+    borderRadius: BorderRadius.full,
+    padding: 3,
+    borderWidth: 1,
+    borderColor: Colors.dark[600],
+    zIndex: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 8,
+  },
+  cityTab: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: 7,
+    borderRadius: BorderRadius.full,
+  },
+  cityTabActive: {
+    backgroundColor: Colors.primary[500],
+  },
+  cityTabText: {
+    color: Colors.text.muted,
+    fontSize: Typography.fontSize.sm,
+    fontWeight: Typography.fontWeight.semibold,
+  },
+  cityTabTextActive: {
+    color: Colors.text.primary,
+  },
   searchContainer: {
     position: 'absolute',
-    top: Spacing.xl,
+    top: 110,
     left: Spacing.md,
     right: Spacing.md,
     flexDirection: 'row',
@@ -710,7 +587,7 @@ const styles = StyleSheet.create({
   },
   viewToggleContainer: {
     position: 'absolute',
-    top: Spacing.xl + 60,
+    top: 170,
     left: Spacing.md,
     backgroundColor: Colors.dark[800],
     borderRadius: BorderRadius.lg,
@@ -769,7 +646,7 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     position: 'absolute',
-    top: Spacing.xl + 105,
+    top: 215,
     left: 0,
     right: 0,
     maxHeight: 44,

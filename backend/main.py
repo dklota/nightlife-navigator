@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from dotenv import load_dotenv
+from src.api.bars import router as bars_router
+from src.api.checkins import router as checkins_router
 
 load_dotenv()
 
@@ -32,6 +34,9 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
+app.include_router(bars_router)
+app.include_router(checkins_router)
 
 if __name__ == "__main__":
     import uvicorn

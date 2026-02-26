@@ -71,22 +71,15 @@ function RootLayoutNav() {
 
   useEffect(() => {
     const inAuthGroup = segments[0] === '(auth)';
-    const currentSegment = segments[1] ?? null;
 
     if (!isAuthenticated && !inAuthGroup) {
       // Redirect to login if not authenticated
       router.replace('/(auth)/login');
     } else if (isAuthenticated && inAuthGroup) {
-      // If authenticated but in auth group, check if student verified
-      if (!isStudentVerified && currentSegment !== 'verify-student') {
-        // Redirect to student verification
-        router.replace('/(auth)/verify-student');
-      } else if (isStudentVerified) {
-        // Redirect to main app if verified
-        router.replace('/(tabs)');
-      }
+      // Authenticated — go straight to the app
+      router.replace('/(tabs)');
     }
-  }, [isAuthenticated, isStudentVerified, segments]);
+  }, [isAuthenticated, segments]);
 
   const customDarkTheme = {
     ...DarkTheme,
