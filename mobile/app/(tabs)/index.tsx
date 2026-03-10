@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Animated,
+  PanResponder,
   Dimensions,
   Image,
   TextInput,
@@ -118,6 +119,35 @@ export default function ExploreScreen() {
   const mapRef = useRef<any>(null);
 
   const listHeight = useRef(new Animated.Value(COLLAPSED_HEIGHT)).current;
+  const currentHeight = useRef(COLLAPSED_HEIGHT);
+
+  const snapTo = (toValue: number) => {
+    currentHeight.current = toValue;
+    setIsListExpanded(toValue === EXPANDED_HEIGHT);
+    Animated.spring(listHeight, {
+      toValue,
+      useNativeDriver: false,
+      tension: 60,
+      friction: 12,
+    }).start();
+  };
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gestureState) =>
+        Math.abs(gestureState.dy) > 5,
+      onPanResponderMove: (_, gestureState) => {
+        const newHeight = currentHeight.current - gestureState.dy;
+        const clamped = Math.max(COLLAPSED_HEIGHT, Math.min(EXPANDED_HEIGHT, newHeight));
+        listHeight.setValue(clamped);
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        const newHeight = currentHeight.current - gestureState.dy;
+        const snapThreshold = COLLAPSED_HEIGHT + 80;
+        snapTo(newHeight > snapThreshold ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT);
+      },
+    })
+  ).current;
 
   const toggleFilter = (filterId: string) => {
     setActiveFilters(prev =>
@@ -167,25 +197,9 @@ export default function ExploreScreen() {
     { featureType: 'transit', stylers: [{ visibility: 'off' }] },
   ];
 
-  const toggleList = () => {
-    const toValue = isListExpanded ? COLLAPSED_HEIGHT : EXPANDED_HEIGHT;
-    Animated.spring(listHeight, {
-      toValue,
-      useNativeDriver: false,
-      tension: 50,
-      friction: 10,
-    }).start();
-    setIsListExpanded(!isListExpanded);
-  };
-
   const selectBarFromList = (bar: DisplayBar) => {
     setSelectedBar(bar);
-    // Collapse list and animate to bar location
-    Animated.spring(listHeight, {
-      toValue: COLLAPSED_HEIGHT,
-      useNativeDriver: false,
-    }).start();
-    setIsListExpanded(false);
+    snapTo(COLLAPSED_HEIGHT);
 
     mapRef.current?.animateToRegion({
       latitude: bar.latitude,
@@ -389,7 +403,7 @@ export default function ExploreScreen() {
       {/* Draggable Bar List (Google Maps style) */}
       <Animated.View style={[styles.listContainer, { height: listHeight }]}>
         {/* Drag Handle */}
-        <TouchableOpacity style={styles.dragHandle} onPress={toggleList}>
+        <View style={styles.dragHandle} {...panResponder.panHandlers}>
           <View style={styles.dragIndicator} />
           <Text style={styles.listTitle}>
             {barsLoading
@@ -403,12 +417,13 @@ export default function ExploreScreen() {
             size={20}
             color={Colors.text.secondary}
           />
-        </TouchableOpacity>
+        </View>
 
         {/* Bar List */}
         <ScrollView
           style={styles.barList}
           showsVerticalScrollIndicator={false}
+          scrollEnabled={isListExpanded}
         >
           {sortedBars.map((bar) => (
             <TouchableOpacity

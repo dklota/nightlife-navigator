@@ -152,19 +152,23 @@ export async function fetchBars(city?: string): Promise<DisplayBar[]> {
 
 export type CheckInPayload = {
     bar_id: string;
+    user_id?: string;
     wait_time_min: number;
     wait_time_max: number;
     energy_level: number;
     vibe_emoji?: string;
     comment?: string;
+    photo_url?: string;
     visibility?: 'public' | 'friends' | 'private';
 };
 
-export async function submitCheckin(payload: CheckInPayload): Promise<void> {
+export async function submitCheckin(payload: CheckInPayload): Promise<string | null> {
     const response = await fetch(`${BASE_URL}/api/checkins`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
     });
     if (!response.ok) throw new Error(`Failed to submit check-in: ${response.status}`);
+    const data = await response.json();
+    return data?.checkin?.id ?? null;
 }

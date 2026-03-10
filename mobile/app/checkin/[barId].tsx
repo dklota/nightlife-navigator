@@ -3,6 +3,8 @@ import {
     StyleSheet,
     View,
     Text,
+    Image,
+    ScrollView,
     TouchableOpacity,
     TextInput,
     Alert,
@@ -15,6 +17,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Colors, Spacing, Typography, BorderRadius } from '../../src/constants/theme';
 import { VIBE_EMOJIS, WAIT_TIME_OPTIONS } from '../../src/types';
 import { submitCheckin } from '../../src/services/api';
+import { uploadCheckinPhoto } from '../../src/services/supabase';
 import { useAuthStore } from '../../src/stores/authStore';
 
 const { width } = Dimensions.get('window');
@@ -96,7 +99,7 @@ export default function CheckInScreen() {
         }
 
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            mediaTypes: ['images', 'videos'],
             allowsMultipleSelection: true,
             quality: 0.8,
         });
@@ -154,7 +157,8 @@ export default function CheckInScreen() {
             const waitOption = selectedWaitTime !== null
                 ? WAIT_TIME_OPTIONS[selectedWaitTime]
                 : WAIT_TIME_OPTIONS[0];
-            await submitCheckin({
+
+            const checkinId = await submitCheckin({
                 bar_id: barId,
                 user_id: user?.id,
                 wait_time_min: waitOption.min,
@@ -164,6 +168,11 @@ export default function CheckInScreen() {
                 comment: comment || undefined,
                 visibility,
             });
+
+            // Upload photo after checkin is created so we have the ID
+            if (media.length > 0 && checkinId) {
+                await uploadCheckinPhoto(media[0], checkinId);
+            }
         } catch (e) {
             // Don't block the success screen on a network hiccup
             console.warn('Check-in submission failed:', e);
@@ -270,9 +279,19 @@ export default function CheckInScreen() {
                             </TouchableOpacity>
                         </View>
                         {media.length > 0 && (
-                            <View style={styles.mediaPreviewContainer}>
-                                <Text style={styles.mediaCount}>{media.length} item(s) selected</Text>
-                            </View>
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaPreviewContainer}>
+                                {media.map((uri, index) => (
+                                    <View key={index} style={styles.mediaPreviewItem}>
+                                        <Image source={{ uri }} style={styles.mediaPreviewImage} />
+                                        <TouchableOpacity
+                                            style={styles.mediaRemoveButton}
+                                            onPress={() => setMedia(media.filter((_, i) => i !== index))}
+                                        >
+                                            <Ionicons name="close-circle" size={22} color="#fff" />
+                                        </TouchableOpacity>
+                                    </View>
+                                ))}
+                            </ScrollView>
                         )}
                     </View>
                 );
@@ -534,12 +553,21 @@ const styles = StyleSheet.create({
         fontSize: Typography.fontSize.sm,
     },
     mediaPreviewContainer: {
-        marginTop: Spacing.xl,
-        alignItems: 'center',
+        marginTop: Spacing.lg,
     },
-    mediaCount: {
-        color: Colors.success,
-        fontSize: Typography.fontSize.sm,
+    mediaPreviewItem: {
+        position: 'relative',
+        marginRight: Spacing.sm,
+    },
+    mediaPreviewImage: {
+        width: 100,
+        height: 100,
+        borderRadius: BorderRadius.lg,
+    },
+    mediaRemoveButton: {
+        position: 'absolute',
+        top: -8,
+        right: -8,
     },
     // Comments & Visibility
     commentInput: {

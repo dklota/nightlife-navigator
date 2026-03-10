@@ -3,12 +3,14 @@ import {
     StyleSheet,
     View,
     Text,
+    Image,
     FlatList,
     RefreshControl,
     ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '../../src/services/supabase';
+import { useAuthStore } from '../../src/stores/authStore';
 import { Colors, Spacing, Typography, BorderRadius } from '../../src/constants/theme';
 
 type ActivityItem = {
@@ -17,8 +19,10 @@ type ActivityItem = {
     wait_time_min: number;
     wait_time_max: number;
     comment: string | null;
+    photo_url: string | null;
     created_at: string;
     user_id: string | null;
+    visibility: string;
     userName: string;
     barName: string;
 };
@@ -62,28 +66,59 @@ function avatarColor(name: string): string {
     return AVATAR_COLORS[idx];
 }
 
-async function fetchActivity(): Promise<ActivityItem[]> {
+async function fetchActivity(currentUserId?: string): Promise<ActivityItem[]> {
     const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const select = 'id, vibe_emoji, wait_time_min, wait_time_max, comment, created_at, user_id, visibility, bars(name), checkin_media(media_url)';
 
-    const { data: checkins, error } = await supabase
+    // Always fetch public posts
+    const { data: publicPosts } = await supabase
         .from('checkins')
-        .select('id, vibe_emoji, wait_time_min, wait_time_max, comment, created_at, user_id, bars(name)')
+        .select(select)
         .eq('visibility', 'public')
         .gte('created_at', cutoff)
         .order('created_at', { ascending: false })
         .limit(50);
 
-    if (error || !checkins?.length) return [];
+    let friendsPosts: any[] = [];
+
+    // Fetch friends-only posts if logged in
+    if (currentUserId) {
+        const { data: friendships } = await supabase
+            .from('friendships')
+            .select('friend_id')
+            .eq('user_id', currentUserId)
+            .eq('status', 'accepted');
+
+        const friendIds = (friendships ?? []).map((f: any) => f.friend_id);
+
+        if (friendIds.length) {
+            const { data: fp } = await supabase
+                .from('checkins')
+                .select(select)
+                .eq('visibility', 'friends')
+                .in('user_id', friendIds)
+                .gte('created_at', cutoff)
+                .order('created_at', { ascending: false })
+                .limit(50);
+            friendsPosts = fp ?? [];
+        }
+    }
+
+    const checkins = [...(publicPosts ?? []), ...friendsPosts]
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .slice(0, 50);
+
+    if (!checkins.length) return [];
 
     // Batch-fetch user names
-    const userIds = [...new Set(checkins.map(c => c.user_id).filter(Boolean))] as string[];
+    const userIds = [...new Set(checkins.map((c: any) => c.user_id).filter(Boolean))] as string[];
     let userMap: Record<string, string> = {};
     if (userIds.length) {
         const { data: users } = await supabase
             .from('users')
             .select('id, full_name')
             .in('id', userIds);
-        userMap = Object.fromEntries((users ?? []).map(u => [u.id, u.full_name]));
+        userMap = Object.fromEntries((users ?? []).map((u: any) => [u.id, u.full_name]));
     }
 
     return checkins.map((c: any) => ({
@@ -92,8 +127,10 @@ async function fetchActivity(): Promise<ActivityItem[]> {
         wait_time_min: c.wait_time_min,
         wait_time_max: c.wait_time_max,
         comment: c.comment,
+        photo_url: c.checkin_media?.[0]?.media_url ?? null,
         created_at: c.created_at,
         user_id: c.user_id,
+        visibility: c.visibility,
         userName: c.user_id ? (userMap[c.user_id] ?? 'Someone') : 'Someone',
         barName: c.bars?.name ?? 'a bar',
     }));
@@ -136,6 +173,10 @@ function ActivityCard({ item }: { item: ActivityItem }) {
             {item.comment ? (
                 <Text style={styles.comment}>"{item.comment}"</Text>
             ) : null}
+
+            {item.photo_url ? (
+                <Image source={{ uri: item.photo_url }} style={styles.photo} resizeMode="cover" />
+            ) : null}
         </View>
     );
 }
@@ -156,10 +197,11 @@ export default function ActivityScreen() {
     const [feed, setFeed]           = useState<ActivityItem[]>([]);
     const [loading, setLoading]     = useState(true);
     const [refreshing, setRefreshing] = useState(false);
+    const { user } = useAuthStore();
 
     const load = useCallback(async (isRefresh = false) => {
         if (isRefresh) setRefreshing(true);
-        const data = await fetchActivity();
+        const data = await fetchActivity(user?.id);
         setFeed(data);
         setLoading(false);
         setRefreshing(false);
@@ -316,6 +358,12 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
         marginTop: Spacing.sm,
         lineHeight: 20,
+    },
+    photo: {
+        width: '100%',
+        height: 200,
+        borderRadius: BorderRadius.lg,
+        marginTop: Spacing.sm,
     },
 
     // Empty state
