@@ -228,10 +228,10 @@ export default function CheckInScreen() {
                     <View style={styles.stepContainer}>
                         <View style={styles.energySliderContainer}>
                             <Text style={[styles.energyValue, { color: energyLevel >= 80 ? Colors.traffic.veryHigh : Colors.primary[400] }]}>
-                                {energyLevel >= 80 ? '🔥 INSANE' : energyLevel >= 50 ? '⚡ HIGH' : '😎 CHILL'}
+                                {energyLevel >= 80 ? '🔥 INSANE' : energyLevel >= 50 && energyLevel < 80 ? '⚡ HIGH' : energyLevel >= 20 && energyLevel < 50 ? 'ACTIVE' : '😎 CHILL'}
                             </Text>
                             <View style={styles.energyOptions}>
-                                {[20, 50, 80, 100].map((level) => (
+                                {[10, 30, 60, 100].map((level) => (
                                     <TouchableOpacity
                                         key={level}
                                         style={[
@@ -244,7 +244,7 @@ export default function CheckInScreen() {
                                             styles.energyLabel,
                                             energyLevel === level && styles.energyLabelSelected,
                                         ]}>
-                                            {level === 20 ? 'Chill' : level === 50 ? 'Active' : level === 80 ? 'High' : 'Insane'}
+                                            {level <= 20 ? 'Chill' : level < 50 ? 'Active' : level < 80 ? 'High' : 'Insane'}
                                         </Text>
                                     </TouchableOpacity>
                                 ))}
@@ -288,6 +288,8 @@ export default function CheckInScreen() {
                             onChangeText={setComment}
                             multiline
                             maxLength={280}
+                            returnKeyType="done"
+                            blurOnSubmit={true}
                         />
                         <Text style={styles.charCount}>{comment.length}/280</Text>
 
